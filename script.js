@@ -1,997 +1,2098 @@
 /* =========================================================
    ECOENERGY MONITOR
-   ESP32 + PZEM-004T + Firebase Realtime Database
+   STYLE.CSS
+   Smart Energy & Budget Dashboard
    ========================================================= */
 
+* {
+  box-sizing: border-box;
+}
 
-/* =========================================================
-   CONFIG
-   ========================================================= */
+html {
+  scroll-behavior: smooth;
+}
 
-const cloudConfig = window.ECOENERGY_CONFIG || {};
+:root {
+  --bg: #07111f;
+  --bg2: #0b1727;
+  --panel: #0d1b2d;
+  --line: #1d3148;
 
-const ESP32_BASE_URL =
-  cloudConfig.esp32BaseUrl
-    ? cloudConfig.esp32BaseUrl.replace(/\/$/, '')
-    : '';
+  --text: #eef7ff;
+  --muted: #8da3b8;
 
-const FIREBASE_DATABASE_URL =
-  cloudConfig.firebaseDatabaseUrl
-    ? cloudConfig.firebaseDatabaseUrl.replace(/\/$/, '')
-    : '';
+  --cyan: #35d7ff;
+  --green: #48e08c;
+  --amber: #ffc857;
+  --violet: #a78bfa;
+  --danger: #ff6b7a;
 
-const FIREBASE_DEVICE_PATH =
-  cloudConfig.firebaseDevicePath ||
-  'devices/esp32-01';
-
-
-/* =========================================================
-   GLOBAL VARIABLES
-   ========================================================= */
-
-let relayState = 'off';
-
-let lastReading = {
-  voltage: 0,
-  current: 0,
-  power: 0,
-  energy: 0
-};
-
-let budgetLimit = 300;
-
-let currentUser = null;
-
-
-/* =========================================================
-   ELEMENT HELPER
-   ========================================================= */
-
-function $(id) {
-  return document.getElementById(id);
+  --font: "Inter", sans-serif;
+  --display: "Space Grotesk", sans-serif;
 }
 
 
 /* =========================================================
-   FIREBASE PATH
+   BODY
    ========================================================= */
 
-function firebasePath(path) {
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  overflow-x: hidden;
+}
 
-  return (
-    FIREBASE_DATABASE_URL +
-    '/' +
-    FIREBASE_DEVICE_PATH +
-    '/' +
-    path +
-    '.json'
-  );
+.hidden {
+  display: none !important;
+}
 
+button,
+input {
+  font-family: var(--font);
+}
+
+button,
+a {
+  transition: 0.25s ease;
 }
 
 
 /* =========================================================
-   PAGE ELEMENTS
+   BACKGROUND EFFECT
    ========================================================= */
 
-const sitePage = $('sitePage');
-const authShell = $('authShell');
-const dashboard = $('dashboard');
+.ambient {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+}
 
-const openLogin = $('openLogin');
-const heroLogin = $('heroLogin');
-const backHome = $('backHome');
+.ambient-a {
+  width: 420px;
+  height: 420px;
+  background: #00d4ff;
+  top: -120px;
+  right: -80px;
+}
 
-const loginForm = $('loginForm');
-const registerForm = $('registerForm');
+.ambient-b {
+  width: 380px;
+  height: 380px;
+  background: #36e58d;
+  bottom: -120px;
+  left: -120px;
+}
 
-const showRegister = $('showRegister');
-const showLogin = $('showLogin');
 
-const logout = $('logout');
+/* =========================================================
+   MAIN PAGE
+   ========================================================= */
 
-const message = $('message');
+.site-page {
+  position: relative;
+  z-index: 1;
+}
 
-const userName = $('userName');
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.site-header,
+.dash-header {
+  height: 78px;
+
+  padding:
+    0
+    clamp(24px, 6vw, 90px);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom:
+    1px solid
+    rgba(141, 163, 184, 0.16);
+
+  background:
+    rgba(7, 17, 31, 0.82);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  position: sticky;
+  top: 0;
+
+  z-index: 20;
+}
+
+
+/* =========================================================
+   LOGO / BRAND
+   ========================================================= */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  color: white;
+  text-decoration: none;
+
+  font-family: var(--display);
+  font-size: 18px;
+}
+
+.brand b {
+  color: var(--cyan);
+}
+
+.brand-icon {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--cyan),
+      var(--green)
+    );
+
+  color: #04111d;
+
+  box-shadow:
+    0 0 25px
+    rgba(53, 215, 255, 0.25);
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.site-nav {
+  display: flex;
+  gap: 36px;
+}
+
+.site-nav a {
+  position: relative;
+
+  color: var(--muted);
+
+  text-decoration: none;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.site-nav a:hover {
+  color: var(--cyan);
+}
+
+.site-nav a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -8px;
+
+  width: 0;
+  height: 2px;
+
+  background: var(--cyan);
+
+  transition: 0.25s;
+}
+
+.site-nav a:hover::after {
+  width: 100%;
+}
+
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.ghost-btn {
+  border:
+    1px solid
+    #28445e;
+
+  background:
+    rgba(255, 255, 255, 0.02);
+
+  color:
+    #dcecff;
+
+  padding:
+    11px 16px;
+
+  border-radius: 10px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.ghost-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+
+  box-shadow:
+    0 0 20px
+    rgba(53, 215, 255, 0.1);
+}
+
+
+.primary-btn {
+  border: 0;
+
+  border-radius: 10px;
+
+  padding:
+    14px 18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #18bde8,
+      #36df8a
+    );
+
+  color:
+    #04111d;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  letter-spacing: 0.5px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 35px
+    rgba(53, 215, 255, 0.13);
+}
+
+.primary-btn:hover {
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 14px 35px
+    rgba(53, 215, 255, 0.2);
+}
+
+.primary-btn span {
+  margin-left: 20px;
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.hero {
+  min-height:
+    calc(100vh - 78px);
+
+  display: grid;
+
+  grid-template-columns:
+    1.08fr
+    0.92fr;
+
+  gap: 5vw;
+
+  align-items: center;
+
+  padding:
+    70px
+    clamp(24px, 7vw, 110px);
+
+  background-image:
+
+    linear-gradient(
+      rgba(53, 215, 255, 0.035) 1px,
+      transparent 1px
+    ),
+
+    linear-gradient(
+      90deg,
+      rgba(53, 215, 255, 0.035) 1px,
+      transparent 1px
+    );
+
+  background-size:
+    38px 38px;
+}
+
+.hero-copy {
+  max-width: 720px;
+}
+
+
+/* =========================================================
+   SMALL TITLE
+   ========================================================= */
+
+.eyebrow {
+  font-size: 10px;
+
+  letter-spacing: 2.2px;
+
+  font-weight: 800;
+
+  color:
+    var(--cyan);
+
+  margin:
+    0 0 15px;
+}
+
+
+/* =========================================================
+   ONLINE STATUS
+   ========================================================= */
+
+.status-pill {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding:
+    8px 12px;
+
+  border:
+    1px solid
+    rgba(72, 224, 140, 0.24);
+
+  background:
+    rgba(72, 224, 140, 0.06);
+
+  border-radius: 999px;
+
+  color:
+    #aef4cc;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  margin-bottom: 24px;
+}
+
+.status-pill.small {
+  margin: 0;
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background:
+    var(--green);
+
+  box-shadow:
+    0 0 12px
+    var(--green);
+
+  animation:
+    pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.35;
+
+    box-shadow:
+      0 0 3px
+      var(--green);
+  }
+}
+
+
+/* =========================================================
+   HEADINGS
+   ========================================================= */
+
+h1,
+h2,
+h3 {
+  font-family:
+    var(--display);
+}
+
+.hero h1 {
+  font-size:
+    clamp(
+      44px,
+      6vw,
+      82px
+    );
+
+  line-height:
+    0.98;
+
+  letter-spacing:
+    -3px;
+
+  margin:
+    0 0 26px;
+}
+
+.hero h1 span,
+.section h2 span,
+.contact-section h2 span {
+  color:
+    var(--cyan);
+}
+
+.lead {
+  max-width:
+    650px;
+
+  color:
+    var(--muted);
+
+  font-size:
+    16px;
+
+  line-height:
+    1.8;
+}
+
+
+/* =========================================================
+   HERO BUTTONS
+   ========================================================= */
+
+.hero-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 26px;
+
+  margin-top:
+    30px;
+}
+
+.text-link {
+  color:
+    #b7c7d6;
+
+  text-decoration:
+    none;
+
+  font-size:
+    12px;
+
+  font-weight:
+    700;
+}
+
+.text-link:hover {
+  color:
+    var(--cyan);
+}
+
+
+/* =========================================================
+   HERO SENSOR VALUES
+   ========================================================= */
+
+.hero-mini-stats {
+  display: flex;
+
+  gap: 10px;
+
+  margin-top:
+    48px;
+}
+
+.hero-mini-stats div {
+  min-width:
+    125px;
+
+  padding:
+    14px 15px;
+
+  border:
+    1px solid
+    var(--line);
+
+  background:
+    rgba(13, 27, 45, 0.6);
+
+  border-radius:
+    12px;
+
+  transition:
+    0.25s;
+}
+
+.hero-mini-stats div:hover {
+  border-color:
+    var(--cyan);
+
+  transform:
+    translateY(-3px);
+}
+
+.hero-mini-stats strong {
+  display: block;
+
+  font-family:
+    var(--display);
+
+  font-size:
+    17px;
+}
+
+.hero-mini-stats small {
+  display: block;
+
+  margin-top:
+    5px;
+
+  color:
+    var(--muted);
+
+  font-size:
+    8px;
+
+  letter-spacing:
+    1.3px;
+}
+
+
+/* =========================================================
+   ENERGY CONSOLE
+   ========================================================= */
+
+.hero-console {
+  position:
+    relative;
+
+  min-height:
+    520px;
+
+  border:
+    1px solid
+    #1e425b;
+
+  border-radius:
+    24px;
+
+  padding:
+    24px;
+
+  background:
+    linear-gradient(
+      160deg,
+      rgba(13, 27, 45, 0.94),
+      rgba(6, 17, 31, 0.86)
+    );
+
+  box-shadow:
+
+    0 30px 80px
+    rgba(0, 0, 0, 0.32),
+
+    inset 0 0 60px
+    rgba(53, 215, 255, 0.025);
+
+  overflow:
+    hidden;
+}
+
+.hero-console::before {
+  content: "";
+
+  position:
+    absolute;
+
+  inset:
+    0;
+
+  background:
+    linear-gradient(
+      transparent 49%,
+      rgba(53, 215, 255, 0.035) 50%
+    );
+
+  background-size:
+    100% 5px;
+
+  pointer-events:
+    none;
+}
+
+.console-top {
+  display:
+    flex;
+
+  justify-content:
+    space-between;
+
+  color:
+    var(--muted);
+
+  font-size:
+    9px;
+
+  letter-spacing:
+    1.5px;
+}
+
+.code {
+  font-family:
+    monospace;
+
+  color:
+    var(--green);
+}
+
+
+/* =========================================================
+   ENERGY RING
+   ========================================================= */
+
+.energy-ring {
+  width:
+    260px;
+
+  height:
+    260px;
+
+  margin:
+    38px
+    auto
+    30px;
+
+  border-radius:
+    50%;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  text-align:
+    center;
+
+  background:
+
+    radial-gradient(
+      circle at center,
+      #0c1c2d 54%,
+      transparent 55%
+    ),
+
+    conic-gradient(
+      var(--cyan) 0 72%,
+      #173149 72% 100%
+    );
+
+  box-shadow:
+    0 0 60px
+    rgba(53, 215, 255, 0.12);
+}
+
+.energy-ring small,
+.energy-ring span {
+  display:
+    block;
+
+  color:
+    var(--muted);
+
+  font-size:
+    8px;
+
+  letter-spacing:
+    1.5px;
+}
+
+.energy-ring strong {
+  display:
+    block;
+
+  font:
+    700
+    48px
+    var(--display);
+
+  margin:
+    5px 0;
+
+  color:
+    white;
+}
+
+
+/* =========================================================
+   ENERGY INFO GRID
+   ========================================================= */
+
+.console-grid {
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:
+    10px;
+}
+
+.console-grid div {
+  padding:
+    15px;
+
+  border:
+    1px solid
+    var(--line);
+
+  background:
+    #091522;
+
+  border-radius:
+    12px;
+}
+
+.console-grid small {
+  display:
+    block;
+
+  color:
+    var(--muted);
+
+  font-size:
+    8px;
+
+  letter-spacing:
+    1.2px;
+}
+
+.console-grid strong {
+  display:
+    block;
+
+  margin-top:
+    7px;
+
+  color:
+    #dff7ff;
+
+  font-size:
+    12px;
+}
+
+
+/* =========================================================
+   SCAN ANIMATION
+   ========================================================= */
+
+.scan-line {
+  position:
+    absolute;
+
+  left:
+    0;
+
+  right:
+    0;
+
+  height:
+    1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--cyan),
+      transparent
+    );
+
+  box-shadow:
+    0 0 12px
+    var(--cyan);
+
+  animation:
+    scan 4s linear infinite;
+}
+
+@keyframes scan {
+
+  from {
+    top:
+      0;
+  }
+
+  to {
+    top:
+      100%;
+  }
+}
+
+
+/* =========================================================
+   GENERAL SECTION
+   ========================================================= */
+
+.section {
+  padding:
+    105px
+    clamp(24px, 7vw, 110px);
+}
+
+.section-tag {
+  border-top:
+    1px solid
+    var(--line);
+
+  padding-top:
+    14px;
+
+  margin-bottom:
+    55px;
+
+  color:
+    #60788e;
+
+  font-size:
+    9px;
+
+  letter-spacing:
+    1.8px;
+}
+
+
+/* =========================================================
+   ABOUT PROJECT
+   ========================================================= */
+
+.about-grid {
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:
+    9vw;
+}
+
+.section h2 {
+  font-size:
+    clamp(
+      34px,
+      4.6vw,
+      62px
+    );
+
+  line-height:
+    1.06;
+
+  letter-spacing:
+    -2px;
+
+  margin:
+    0;
+}
+
+.about-copy p,
+.section-head > p,
+.contact-section p {
+  color:
+    var(--muted);
+
+  line-height:
+    1.8;
+
+  font-size:
+    14px;
+}
+
+.tech-row {
+  display:
+    flex;
+
+  flex-wrap:
+    wrap;
+
+  gap:
+    8px;
+
+  margin-top:
+    30px;
+}
+
+.tech-row span,
+.tag {
+  border:
+    1px solid
+    #254057;
+
+  background:
+    #0c1a2a;
+
+  padding:
+    8px 10px;
+
+  border-radius:
+    8px;
+
+  font-size:
+    9px;
+
+  font-weight:
+    800;
+
+  color:
+    #9fdff1;
+}
+
+
+/* =========================================================
+   FEATURES
+   ========================================================= */
+
+.features-section {
+  background:
+    #091522;
+}
+
+.section-head {
+  display:
+    flex;
+
+  justify-content:
+    space-between;
+
+  gap:
+    50px;
+
+  align-items:
+    end;
+}
+
+.section-head > div {
+  max-width:
+    720px;
+}
+
+.section-head > p {
+  max-width:
+    390px;
+}
+
+.feature-grid {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap:
+    14px;
+
+  margin-top:
+    55px;
+}
+
+.feature-grid article {
+  position:
+    relative;
+
+  min-height:
+    260px;
+
+  padding:
+    24px;
+
+  border:
+    1px solid
+    var(--line);
+
+  background:
+    linear-gradient(
+      180deg,
+      #0e1c2d,
+      #0a1624
+    );
+
+  border-radius:
+    16px;
+
+  overflow:
+    hidden;
+
+  transition:
+    0.3s ease;
+}
+
+.feature-grid article:hover {
+  border-color:
+    #2d6684;
+
+  transform:
+    translateY(-5px);
+
+  box-shadow:
+    0 20px 50px
+    rgba(0, 0, 0, 0.2);
+}
+
+.feature-no {
+  position:
+    absolute;
+
+  right:
+    18px;
+
+  top:
+    16px;
+
+  color:
+    #385168;
+
+  font:
+    700
+    11px
+    var(--display);
+}
+
+.feature-icon {
+  width:
+    48px;
+
+  height:
+    48px;
+
+  border-radius:
+    13px;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  background:
+    rgba(53, 215, 255, 0.09);
+
+  border:
+    1px solid
+    rgba(53, 215, 255, 0.2);
+
+  color:
+    var(--cyan);
+
+  font-weight:
+    900;
+}
+
+.feature-grid h3 {
+  margin:
+    55px
+    0
+    12px;
+
+  font-size:
+    18px;
+}
+
+.feature-grid p {
+  color:
+    var(--muted);
+
+  font-size:
+    12px;
+
+  line-height:
+    1.7;
+}
+
+
+/* =========================================================
+   SYSTEM FLOW
+   ========================================================= */
+
+.architecture-section {
+  background:
+    #07111f;
+}
+
+.flow {
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr auto
+    1fr auto
+    1fr auto
+    1fr;
+
+  align-items:
+    center;
+
+  gap:
+    16px;
+}
+
+.flow-node {
+  padding:
+    24px;
+
+  border:
+    1px solid
+    var(--line);
+
+  background:
+    #0a1725;
+
+  border-radius:
+    14px;
+
+  transition:
+    0.25s;
+}
+
+.flow-node:hover {
+  transform:
+    translateY(-3px);
+
+  border-color:
+    #2b607e;
+}
+
+.flow-node.active {
+  border-color:
+    var(--cyan);
+
+  box-shadow:
+    0 0 30px
+    rgba(53, 215, 255, 0.08);
+}
+
+.flow-node b {
+  display:
+    block;
+
+  font:
+    700
+    18px
+    var(--display);
+}
+
+.flow-node small {
+  display:
+    block;
+
+  color:
+    var(--muted);
+
+  margin-top:
+    8px;
+}
+
+.flow i {
+  color:
+    var(--cyan);
+
+  font-style:
+    normal;
+}
+
+
+/* =========================================================
+   CONTACT
+   ========================================================= */
+
+.contact-section {
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:
+    8vw;
+
+  background:
+    linear-gradient(
+      145deg,
+      #081625,
+      #0b1f30
+    );
+}
+
+.contact-section h2 {
+  font-size:
+    clamp(
+      34px,
+      4.2vw,
+      58px
+    );
+
+  margin:
+    0;
+}
+
+.contact-card {
+  border:
+    1px solid
+    #244057;
+
+  background:
+    rgba(5, 15, 26, 0.55);
+
+  border-radius:
+    18px;
+
+  padding:
+    28px;
+}
+
+.avatar {
+  width:
+    58px;
+
+  height:
+    58px;
+
+  border-radius:
+    16px;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--cyan),
+      var(--green)
+    );
+
+  color:
+    #06121e;
+
+  font:
+    800
+    24px
+    var(--display);
+
+  float:
+    right;
+}
+
+.contact-card h3 {
+  font-size:
+    28px;
+
+  margin:
+    6px 0 25px;
+}
+
+.contact-card small {
+  display:
+    block;
+
+  color:
+    var(--muted);
+
+  font-size:
+    8px;
+
+  letter-spacing:
+    1.4px;
+}
+
+.contact-card a {
+  display:
+    block;
+
+  padding:
+    17px 0;
+
+  border-top:
+    1px solid
+    var(--line);
+
+  text-decoration:
+    none;
+
+  color:
+    white;
+}
+
+.contact-card a:hover {
+  color:
+    var(--cyan);
+}
+
+.contact-card a strong {
+  display:
+    block;
+
+  margin-top:
+    6px;
+
+  font-size:
+    13px;
+
+  word-break:
+    break-word;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer {
+  display:
+    flex;
+
+  justify-content:
+    space-between;
+
+  padding:
+    24px
+    clamp(24px, 7vw, 110px);
+
+  border-top:
+    1px solid
+    var(--line);
+
+  color:
+    #597188;
+
+  font-size:
+    9px;
+
+  letter-spacing:
+    1.3px;
+}
 
 
 /* =========================================================
    LOGIN PAGE
    ========================================================= */
 
-function showLoginPage() {
+.auth-shell {
+  min-height:
+    100vh;
 
-  sitePage.classList.add('hidden');
+  display:
+    grid;
 
-  authShell.classList.remove('hidden');
+  grid-template-columns:
+    1fr 1fr;
 
-  dashboard.classList.add('hidden');
+  position:
+    relative;
+}
 
+.back-btn {
+  position:
+    absolute;
+
+  z-index:
+    3;
+
+  top:
+    28px;
+
+  left:
+    30px;
+
+  border:
+    1px solid
+    #294158;
+
+  background:
+    #091522;
+
+  color:
+    #a8bdd0;
+
+  padding:
+    10px 14px;
+
+  border-radius:
+    9px;
+
+  cursor:
+    pointer;
+}
+
+.back-btn:hover {
+  color:
+    var(--cyan);
+
+  border-color:
+    var(--cyan);
 }
 
 
-function showHomePage() {
-
-  sitePage.classList.remove('hidden');
-
-  authShell.classList.add('hidden');
-
-  dashboard.classList.add('hidden');
-
-}
-
-
-function showDashboard() {
-
-  sitePage.classList.add('hidden');
-
-  authShell.classList.add('hidden');
-
-  dashboard.classList.remove('hidden');
-
-}
-
-
-/* =========================================================
-   LOGIN BUTTONS
-   ========================================================= */
-
-if (openLogin) {
-
-  openLogin.addEventListener(
-    'click',
-    showLoginPage
-  );
-
-}
-
-
-if (heroLogin) {
-
-  heroLogin.addEventListener(
-    'click',
-    showLoginPage
-  );
-
-}
-
-
-if (backHome) {
-
-  backHome.addEventListener(
-    'click',
-    showHomePage
-  );
-
-}
-
-
-/* =========================================================
-   SWITCH LOGIN / REGISTER
-   ========================================================= */
-
-if (showRegister) {
-
-  showRegister.addEventListener(
-    'click',
-    function () {
-
-      loginForm.classList.add('hidden');
-
-      registerForm.classList.remove('hidden');
-
-      const title = $('formTitle');
-      const subtitle = $('formSubtitle');
-
-      if (title) {
-        title.textContent =
-          'Cipta Akaun';
-      }
-
-      if (subtitle) {
-        subtitle.textContent =
-          'Daftar untuk lihat tenaga anda.';
-      }
-
-    }
-  );
-
-}
-
-
-if (showLogin) {
-
-  showLogin.addEventListener(
-    'click',
-    function () {
-
-      registerForm.classList.add('hidden');
-
-      loginForm.classList.remove('hidden');
-
-      const title = $('formTitle');
-      const subtitle = $('formSubtitle');
-
-      if (title) {
-        title.textContent =
-          'Selamat Datang Kembali';
-      }
-
-      if (subtitle) {
-        subtitle.textContent =
-          'Log masuk untuk lihat tenaga anda.';
-      }
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   MESSAGE
-   ========================================================= */
-
-function showMessage(text) {
-
-  if (!message) return;
-
-  message.textContent = text;
-
-}
-
-
-/* =========================================================
-   LOGIN
-   ========================================================= */
-
-if (loginForm) {
-
-  loginForm.addEventListener(
-    'submit',
-    function (event) {
-
-      event.preventDefault();
-
-      const username =
-        $('loginUser').value.trim();
-
-      const password =
-        $('loginPass').value;
-
-      /*
-       * Demo login
-       */
-
-      if (
-        username === 'user123' &&
-        password === 'password123'
-      ) {
-
-        currentUser = username;
-
-        localStorage.setItem(
-          'ecoenergyUser',
-          username
-        );
-
-        if (userName) {
-          userName.textContent =
-            username;
-        }
-
-        showMessage('');
-
-        showDashboard();
-
-        updateLiveSensorReadings();
-
-        updateRelayFromFirebase();
-
-      } else {
-
-        showMessage(
-          'Username atau password tidak betul.'
-        );
-
-      }
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   REGISTER
-   ========================================================= */
-
-if (registerForm) {
-
-  registerForm.addEventListener(
-    'submit',
-    function (event) {
-
-      event.preventDefault();
-
-      const username =
-        $('regUser').value.trim();
-
-      const password =
-        $('regPass').value;
-
-      const confirm =
-        $('regConfirm').value;
-
-      if (!username) {
-
-        showMessage(
-          'Sila masukkan username.'
-        );
-
-        return;
-
-      }
-
-
-      if (password.length < 6) {
-
-        showMessage(
-          'Password mestilah sekurang-kurangnya 6 aksara.'
-        );
-
-        return;
-
-      }
-
-
-      if (password !== confirm) {
-
-        showMessage(
-          'Password tidak sama.'
-        );
-
-        return;
-
-      }
-
-
-      localStorage.setItem(
-        'ecoenergyRegisteredUser',
-        username
-      );
-
-      localStorage.setItem(
-        'ecoenergyRegisteredPassword',
-        password
-      );
-
-
-      showMessage(
-        'Akaun berjaya didaftarkan. Sila log masuk.'
-      );
-
-
-      registerForm.classList.add('hidden');
-
-      loginForm.classList.remove('hidden');
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-
-if (logout) {
-
-  logout.addEventListener(
-    'click',
-    function () {
-
-      currentUser = null;
-
-      localStorage.removeItem(
-        'ecoenergyUser'
-      );
-
-      dashboard.classList.add('hidden');
-
-      showHomePage();
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   CONNECTION STATUS
-   ========================================================= */
-
-function setConnectionStatus(
-  connected,
-  text = null
-) {
-
-  const heroStatus =
-    $('heroConnectionStatus');
-
-  const dashboardStatus =
-    $('dashboardConnectionStatus');
-
-
-  if (connected) {
-
-    if (heroStatus) {
-
-      heroStatus.textContent =
-        text || 'ESP32 / CLOUD: CONNECTED';
-
-    }
-
-
-    if (dashboardStatus) {
-
-      dashboardStatus.textContent =
-        text || 'ESP32 / Firebase tersambung';
-
-    }
-
-  } else {
-
-    if (heroStatus) {
-
-      heroStatus.textContent =
-        'ESP32: OFFLINE';
-
-    }
-
-
-    if (dashboardStatus) {
-
-      dashboardStatus.textContent =
-        'ESP32 / Firebase tidak tersambung';
-
-    }
-
-  }
-
-}
-
-
-/* =========================================================
-   DISPLAY SENSOR
-   ========================================================= */
-
-function displayReading(reading) {
-
-  if (!reading) return;
-
-
-  const voltage =
-    Number(reading.voltage) || 0;
-
-  const current =
-    Number(reading.current) || 0;
-
-  const power =
-    Number(reading.power) || 0;
-
-  const energy =
-    Number(reading.energy) || 0;
-
-
-  lastReading = {
-    voltage,
-    current,
-    power,
-    energy
-  };
-
-
-  /* HOME */
-
-  if ($('val-voltage')) {
-
-    $('val-voltage').textContent =
-      voltage.toFixed(2) + ' V';
-
-  }
-
-
-  if ($('val-current')) {
-
-    $('val-current').textContent =
-      current.toFixed(2) + ' A';
-
-  }
-
-
-  if ($('val-power')) {
-
-    $('val-power').textContent =
-      power.toFixed(2) + ' W';
-
-  }
-
-
-  /* DASHBOARD */
-
-  if ($('dashboardVoltage')) {
-
-    $('dashboardVoltage').textContent =
-      voltage.toFixed(2) + ' V';
-
-  }
-
-
-  if ($('dashboardCurrent')) {
-
-    $('dashboardCurrent').textContent =
-      current.toFixed(2) + ' A';
-
-  }
-
-
-  if ($('dashboardPower')) {
-
-    $('dashboardPower').textContent =
-      power.toFixed(2) + ' W';
-
-  }
-
-
-  /* ENERGY */
-
-  if ($('totalKwh')) {
-
-    $('totalKwh').value =
-      energy.toFixed(2);
-
-  }
-
-
-  if ($('dashboardUsage')) {
-
-    $('dashboardUsage').textContent =
-      energy.toFixed(2);
-
-  }
-
-
-  updateBudget(energy);
-
-}
-
-
-/* =========================================================
-   GET SENSOR DATA
-   ========================================================= */
-
-async function fetchLatestReading() {
-
-  let reading = null;
-
-
-  /*
-   * 1. Cuba ESP32 secara direct
-   * hanya jika esp32BaseUrl digunakan.
-   */
-
-  if (ESP32_BASE_URL) {
-
-    try {
-
-      const response =
-        await fetch(
-          ESP32_BASE_URL +
-          '/api/latest',
-          {
-            method: 'GET'
-          }
-        );
-
-
-      if (response.ok) {
-
-        const data =
-          await response.json();
-
-        reading =
-          data.reading || data;
-
-      }
-
-    } catch (error) {
-
-      console.log(
-        'Direct ESP32 gagal:',
-        error
-      );
-
-    }
-
-  }
-
-
-  /*
-   * 2. Jika direct ESP32 gagal,
-   * baca Firebase.
-   */
-
-  if (!reading && FIREBASE_DATABASE_URL) {
-
-    try {
-
-      const response =
-        await fetch(
-          firebasePath('reading'),
-          {
-            method: 'GET',
-            cache: 'no-store'
-          }
-        );
-
-
-      if (response.ok) {
-
-        reading =
-          await response.json();
-
-      }
-
-    } catch (error) {
-
-      console.log(
-        'Firebase reading gagal:',
-        error
-      );
-
-    }
-
-  }
-
-
-  if (reading) {
-
-    displayReading(reading);
-
-    setConnectionStatus(
-      true,
-      'ESP32 / Firebase tersambung'
+/* LEFT LOGIN */
+
+.auth-showcase {
+  padding:
+    12vh
+    8vw;
+
+  background:
+    linear-gradient(
+      145deg,
+      #06121f,
+      #0b2c3d
     );
 
-    return true;
+  position:
+    relative;
 
-  }
+  overflow:
+    hidden;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  justify-content:
+    center;
+}
+
+.auth-showcase h2 {
+  font-size:
+    clamp(
+      40px,
+      5vw,
+      70px
+    );
+
+  line-height:
+    1.02;
+
+  margin:
+    0;
+}
+
+.auth-showcase h2 span {
+  color:
+    var(--cyan);
+}
+
+.auth-showcase > p:not(.eyebrow) {
+  color:
+    var(--muted);
+
+  max-width:
+    480px;
+
+  line-height:
+    1.7;
+}
 
 
-  setConnectionStatus(false);
+/* ORBIT EFFECT */
 
-  return false;
+.auth-orbit {
+  position:
+    absolute;
 
+  width:
+    480px;
+
+  height:
+    480px;
+
+  border:
+    1px solid
+    rgba(53, 215, 255, 0.13);
+
+  border-radius:
+    50%;
+
+  right:
+    -180px;
+
+  top:
+    10%;
+
+  box-shadow:
+
+    0 0 0 60px
+    rgba(53, 215, 255, 0.025),
+
+    0 0 0 120px
+    rgba(72, 224, 140, 0.018);
+}
+
+
+/* LOGIN STATS */
+
+.auth-stats {
+  display:
+    flex;
+
+  gap:
+    12px;
+
+  margin-top:
+    45px;
+}
+
+.auth-stats div {
+  padding:
+    14px 18px;
+
+  border:
+    1px solid
+    #264158;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  min-width:
+    105px;
+}
+
+.auth-stats b {
+  display:
+    block;
+
+  font:
+    700
+    20px
+    var(--display);
+
+  color:
+    var(--cyan);
+}
+
+.auth-stats span {
+  font-size:
+    8px;
+
+  color:
+    var(--muted);
+}
+
+
+/* RIGHT LOGIN */
+
+.auth-panel {
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  padding:
+    40px;
+
+  background:
+    #08131f;
+}
+
+.login-card {
+  width:
+    min(100%, 430px);
+
+  padding:
+    36px;
+
+  border:
+    1px solid
+    var(--line);
+
+  background:
+    #0b1827;
+
+  border-radius:
+    20px;
+
+  box-shadow:
+    0 30px 70px
+    rgba(0, 0, 0, 0.25);
+}
+
+.auth-brand {
+  margin-bottom:
+    45px;
+}
+
+.login-card h2 {
+  font-size:
+    30px;
+
+  margin:
+    0 0 8px;
+}
+
+.muted {
+  color:
+    var(--muted);
+
+  font-size:
+    12px;
+
+  margin-bottom:
+    28px;
+}
+
+
+/* INPUT */
+
+.login-card label,
+.calc-form label {
+  display:
+    block;
+
+  margin:
+    13px 0 7px;
+
+  color:
+    #b7c8d8;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+}
+
+.login-card input,
+.calc-form input {
+  width:
+    100%;
+
+  padding:
+    14px;
+
+  border:
+    1px solid
+    #294057;
+
+  background:
+    #07131f;
+
+  color:
+    white;
+
+  border-radius:
+    9px;
+
+  outline:
+    none;
+
+  transition:
+    0.2s;
+}
+
+.login-card input:focus,
+.calc-form input:focus {
+  border-color:
+    var(--cyan);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(53, 215, 255, 0.07);
+}
+
+
+/* PASSWORD */
+
+.password-wrap {
+  position:
+    relative;
+}
+
+.password-wrap input {
+  padding-right:
+    75px;
+}
+
+.password-wrap button {
+  position:
+    absolute;
+
+  right:
+    8px;
+
+  top:
+    8px;
+
+  border:
+    0;
+
+  background:
+    #12263a;
+
+  color:
+    #9db4c7;
+
+  border-radius:
+    7px;
+
+  padding:
+    7px 9px;
+
+  cursor:
+    pointer;
+}
+
+.password-wrap button:hover {
+  color:
+    var(--cyan);
+}
+
+.full {
+  width:
+    100%;
+
+  margin-top:
+    22px;
+}
+
+.message {
+  min-height:
+    18px;
+
+  color:
+    #ff8190;
+
+  text-align:
+    center;
+
+  font-size:
+    11px;
+}
+
+.security-note {
+  text-align:
+    center;
+
+  color:
+    #647b90;
+
+  font-size:
+    9px;
+
+  margin-top:
+    20px;
 }
 
 
 /* =========================================================
-   LIVE SENSOR UPDATE
+   DASHBOARD
    ========================================================= */
 
-async function updateLiveSensorReadings() {
+.dashboard {
+  min-height:
+    100vh;
 
-  await fetchLatestReading();
+  background:
+    #07111f;
+}
 
+.dash-head-right {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    12px;
+}
+
+.dash-wrap {
+  max-width:
+    1250px;
+
+  margin:
+    auto;
+
+  padding:
+    55px
+    24px
+    90px;
+}
+
+
+/* DASHBOARD INTRO */
+
+.dash-intro {
+  display:
+    flex;
+
+  justify-content:
+    space-between;
+
+  align-items:
+    end;
+}
+
+.dash-intro h1 {
+  font-size:
+    42px;
+
+  margin:
+    0;
+}
+
+.dash-intro h1 span {
+  color:
+    var(--cyan);
+}
+
+.dash-intro p {
+  color:
+    var(--muted);
+}
+
+.date-chip {
+  padding:
+    13px 16px;
+
+  border:
+    1px solid
+    var(--line);
+
+  border-radius:
+    10px;
+
+  background:
+    #0b1827;
+}
+
+.date-chip small {
+  display:
+    block;
+
+  color:
+    var(--muted);
+
+  font-size:
+    8px;
+}
+
+.date-chip strong {
+  font-size:
+    11px;
+
+  color:
+    var(--green);
 }
 
 
 /* =========================================================
-   RELAY UI
+   SENSOR CARDS
    ========================================================= */
 
-function renderRelayState() {
+.metric-grid {
+  display:
+    grid;
 
-  const onButton =
-    $('relayOn');
+  grid-template-columns:
+    repeat(4, 1fr);
 
-  const offButton =
-    $('relayOff');
+  gap:
+    13px;
 
-  const text =
-    $('relayStatusText');
+  margin-top:
+    34px;
+}
 
+.metric {
+  position:
+    relative;
 
-  if (relayState === 'on') {
+  padding:
+    22px;
 
-    if (onButton) {
+  border:
+    1px solid
+    var(--line);
 
-      onButton.classList.add(
-        'active'
-      );
+  border-radius:
+    15px;
 
-    }
+  background:
+    #0b1827;
 
+  overflow:
+    hidden;
 
-    if (offButton) {
+  transition:
+    0.25s ease;
+}
 
-      offButton.classList.remove(
-        'active'
-      );
+.metric:hover {
+  transform:
+    translateY(-3px);
 
-    }
+  border-color:
+    #31516c;
+}
 
+.metric::before {
+  content:
+    "";
 
-    if (text) {
+  position:
+    absolute;
 
-      text.textContent =
-        'Relay sedang ON.';
+  left:
+    0;
 
-    }
+  top:
+    0;
 
-  } else {
+  bottom:
+    0;
 
-    if (onButton) {
+  width:
+    3px;
 
-      onButton.classList.remove(
-        'active'
-      );
+  background:
+    var(--cyan);
+}
 
-    }
+.metric.green::before {
+  background:
+    var(--green);
+}
 
+.metric.amber::before {
+  background:
+    var(--amber);
+}
 
-    if (offButton) {
+.metric.violet::before {
+  background:
+    var(--violet);
+}
 
-      offButton.classList.add(
-        'active'
-      );
+.metric small {
+  color:
+    var(--muted);
 
-    }
+  font-size:
+    8px;
 
+  letter-spacing:
+    1.4px;
+}
 
-    if (text) {
+.metric strong {
+  display:
+    block;
 
-      text.textContent =
-        'Relay sedang OFF.';
+  font:
+    700
+    27px
+    var(--display);
 
-    }
+  margin:
+    15px 0 8px;
+}
 
-  }
+.metric span {
+  color:
+    #758ca1;
 
+  font-size:
+    10px;
 }
 
 
 /* =========================================================
-   SEND RELAY TO FIREBASE
+   DASHBOARD GRID
    ========================================================= */
 
-async function sendRelayToFirebase(
-  state
-) {
+.dash-grid {
+  display:
+    grid;
 
-  if (!FIREBASE_DATABASE_URL) {
+  grid-template-columns:
+    1.5fr
+    0.8fr;
 
-    throw new Error(
-      'Firebase URL belum ditetapkan.'
-    );
+  gap:
+    13px;
 
-  }
-
-
-  const response =
-    await fetch(
-      firebasePath('relay'),
-      {
-        method: 'PUT',
-
-        headers: {
-          'Content-Type':
-            'application/json'
-        },
-
-        body: JSON.stringify(state)
-      }
-    );
-
-
-  if (!response.ok) {
-
-    throw new Error(
-      'Firebase gagal menerima arahan relay.'
-    );
-
-  }
-
-
-  return true;
-
+  margin-top:
+    13px;
 }
 
+.panel {
+  border:
+    1px solid
+    var(--line);
 
-/* =========================================================
-   SET RELAY
-   ========================================================= */
+  border-radius:
+    15px;
 
-async function setRelayState(
-  state
-) {
+  background:
+    #0b1827;
 
-  relayState = state;
-
-  renderRelayState();
-
-
-  try {
-
-    /*
-     * Cuba direct ESP32 dahulu
-     */
-
-    if (ESP32_BASE_URL) {
-
-      try {
-
-        const response =
-          await fetch(
-            ESP32_BASE_URL +
-            '/api/relay',
-            {
-              method: 'POST',
-
-              headers: {
-                'Content-Type':
-                  'application/json'
-              },
-
-              body: JSON.stringify({
-                state: state
-              })
-            }
-          );
-
-
-        if (response.ok) {
-
-          setConnectionStatus(
-            true,
-            'ESP32 tersambung'
-          );
-
-          return;
-
-        }
-
-      } catch (error) {
-
-        console.log(
-          'Direct ESP32 relay gagal:',
-          error
-        );
-
-      }
-
-    }
-
-
-    /*
-     * Jika direct ESP32 tidak digunakan,
-     * hantar arahan ke Firebase.
-     */
-
-    await sendRelayToFirebase(
-      state
-    );
-
-
-    setConnectionStatus(
-      true,
-      'Arahan relay dihantar ke Firebase'
-    );
-
-
-  } catch (error) {
-
-    console.error(error);
-
-    setConnectionStatus(
-      false
-    );
-
-    alert(
-      'Arahan relay gagal dihantar ke Firebase.'
-    );
-
-  }
-
+  padding:
+    24px;
 }
 
+.panel-head {
+  display:
+    flex;
 
-/* =========================================================
-   READ RELAY FROM FIREBASE
-   ========================================================= */
+  justify-content:
+    space-between;
 
-async function updateRelayFromFirebase() {
-
-  if (!FIREBASE_DATABASE_URL) {
-    return;
-  }
-
-
-  try {
-
-    const response =
-      await fetch(
-        firebasePath('relay'),
-        {
-          method: 'GET',
-          cache: 'no-store'
-        }
-      );
-
-
-    if (!response.ok) {
-      return;
-    }
-
-
-    const state =
-      await response.json();
-
-
-    if (
-      state === 'on' ||
-      state === 'off'
-    ) {
-
-      relayState = state;
-
-      renderRelayState();
-
-    }
-
-  } catch (error) {
-
-    console.log(
-      'Baca relay Firebase gagal:',
-      error
-    );
-
-  }
-
+  align-items:
+    start;
 }
 
+.panel h3 {
+  font-size:
+    20px;
 
-/* =========================================================
-   RELAY BUTTON
-   ========================================================= */
-
-if ($('relayOn')) {
-
-  $('relayOn').addEventListener(
-    'click',
-    function () {
-
-      setRelayState('on');
-
-    }
-  );
-
-}
-
-
-if ($('relayOff')) {
-
-  $('relayOff').addEventListener(
-    'click',
-    function () {
-
-      setRelayState('off');
-
-    }
-  );
-
+  margin:
+    0;
 }
 
 
@@ -999,389 +2100,665 @@ if ($('relayOff')) {
    BUDGET
    ========================================================= */
 
-function updateBudget(
-  energy
-) {
+.tag.good {
+  color:
+    #8ff0b8;
 
-  const usage =
-    Number(energy) || 0;
+  border-color:
+    rgba(72, 224, 140, 0.3);
+}
 
-  const percentage =
-    budgetLimit > 0
-      ? (usage / budgetLimit) * 100
-      : 0;
+.budget-number {
+  margin-top:
+    35px;
+}
+
+.budget-number small {
+  display:
+    block;
+
+  color:
+    var(--muted);
+
+  font-size:
+    8px;
+}
+
+.budget-number strong {
+  display:
+    block;
+
+  font:
+    700
+    36px
+    var(--display);
+
+  margin-top:
+    6px;
+}
 
 
-  const safePercentage =
-    Math.min(
-      Math.max(
-        percentage,
-        0
-      ),
-      100
+/* BUDGET PROGRESS */
+
+.progress-track {
+  height:
+    10px;
+
+  background:
+    #15283a;
+
+  border-radius:
+    99px;
+
+  overflow:
+    hidden;
+
+  margin:
+    24px 0 10px;
+}
+
+.progress-track > div {
+  height:
+    100%;
+
+  width:
+    0;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--green),
+      var(--cyan)
     );
 
+  transition:
+    0.4s;
+}
 
-  const progressBar =
-    $('budget-progress-bar');
+.budget-panel > p {
+  color:
+    var(--muted);
 
-  const progressText =
-    $('budget-progress-text');
-
-  const systemStatus =
-    $('system-status-text');
-
-  const recommendation =
-    $('smart-recommendation-box');
-
-  const dashboardStatus =
-    $('dashboardStatus');
+  font-size:
+    10px;
+}
 
 
-  if (progressBar) {
+/* RECOMMENDATION */
 
-    progressBar.style.width =
-      safePercentage + '%';
+.recommendation {
+  margin-top:
+    17px;
 
-  }
+  padding:
+    13px;
 
+  border-left:
+    3px solid
+    var(--green);
 
-  if (progressText) {
+  background:
+    rgba(72, 224, 140, 0.07);
 
-    progressText.textContent =
-      usage.toFixed(2) +
-      ' kWh daripada ' +
-      budgetLimit +
-      ' kWh sasaran (' +
-      percentage.toFixed(1) +
-      '%)';
+  color:
+    #a9c4b5;
 
-  }
+  font-size:
+    11px;
 
-
-  if (percentage >= 100) {
-
-    if (systemStatus) {
-
-      systemStatus.textContent =
-        'BAJET DICAPAI';
-
-    }
-
-
-    if (dashboardStatus) {
-
-      dashboardStatus.textContent =
-        'BAJET DICAPAI';
-
-    }
-
-
-    if (recommendation) {
-
-      recommendation.textContent =
-        'Penggunaan telah mencapai sasaran bajet.';
-
-    }
-
-  } else if (percentage >= 80) {
-
-    if (systemStatus) {
-
-      systemStatus.textContent =
-        'HAMPIR HAD';
-
-    }
-
-
-    if (dashboardStatus) {
-
-      dashboardStatus.textContent =
-        'HAMPIR HAD';
-
-    }
-
-
-    if (recommendation) {
-
-      recommendation.textContent =
-        'Penggunaan menghampiri had bajet.';
-
-    }
-
-  } else {
-
-    if (systemStatus) {
-
-      systemStatus.textContent =
-        'NORMAL';
-
-    }
-
-
-    if (dashboardStatus) {
-
-      dashboardStatus.textContent =
-        'NORMAL';
-
-    }
-
-
-    if (recommendation) {
-
-      recommendation.textContent =
-        'Penggunaan tenaga masih dalam sasaran.';
-
-    }
-
-  }
-
+  line-height:
+    1.6;
 }
 
 
 /* =========================================================
-   BILL CALCULATOR
+   RELAY
    ========================================================= */
 
-function calculateBill() {
+.relay-led {
+  width:
+    10px;
 
-  const kwh =
-    Number(
-      $('totalKwh')?.value
-    ) || 0;
+  height:
+    10px;
+
+  border-radius:
+    50%;
+
+  background:
+    var(--green);
+
+  box-shadow:
+    0 0 12px
+    var(--green);
+}
+
+.relay-visual {
+  margin:
+    35px 0;
+
+  padding:
+    20px;
+
+  background:
+    #07131f;
+
+  border:
+    1px solid
+    #1a3045;
+
+  border-radius:
+    12px;
+}
+
+.relay-visual span {
+  display:
+    block;
+
+  color:
+    var(--muted);
+
+  font-size:
+    8px;
+}
+
+.relay-visual strong {
+  display:
+    block;
+
+  margin-top:
+    8px;
+
+  font-size:
+    13px;
+}
+
+.relay-actions {
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:
+    8px;
+}
+
+.relay-btn {
+  padding:
+    13px;
+
+  border:
+    1px solid
+    #284057;
+
+  background:
+    #0c1b2b;
+
+  color:
+    #8fa6b9;
+
+  border-radius:
+    9px;
+
+  font-weight:
+    900;
+
+  cursor:
+    pointer;
+}
+
+.relay-btn:hover {
+  transform:
+    translateY(-2px);
+}
 
 
-  const days =
-    Number(
-      $('billingDays')?.value
-    ) || 30;
+/* RELAY ON */
+
+.relay-btn.on.active {
+  background:
+    var(--green);
+
+  color:
+    #06130c;
+
+  border-color:
+    var(--green);
+
+  box-shadow:
+    0 0 20px
+    rgba(72, 224, 140, 0.2);
+}
 
 
-  /*
-   * Kadar contoh.
-   * Boleh ubah mengikut kadar tarif
-   * yang digunakan dalam projek.
-   */
+/* RELAY OFF */
 
-  let energyCost = 0;
+.relay-btn.off.active {
+  background:
+    var(--danger);
 
-  let remaining = kwh;
+  color:
+    #1c0509;
+
+  border-color:
+    var(--danger);
+
+  box-shadow:
+    0 0 20px
+    rgba(255, 107, 122, 0.16);
+}
 
 
-  /*
-   * Blok 1
-   */
+/* =========================================================
+   ENERGY CALCULATOR
+   ========================================================= */
 
-  const block1 =
-    Math.min(
-      remaining,
-      100
+.calculator-card {
+  margin-top:
+    13px;
+}
+
+.calc-icon {
+  width:
+    42px;
+
+  height:
+    42px;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  border-radius:
+    10px;
+
+  background:
+    rgba(53, 215, 255, 0.1);
+
+  color:
+    var(--cyan);
+
+  font-weight:
+    900;
+}
+
+
+/* CALCULATOR FORM */
+
+.calc-form {
+  display:
+    grid;
+
+  grid-template-columns:
+    1.4fr
+    1fr
+    auto;
+
+  gap:
+    12px;
+
+  align-items:
+    end;
+
+  margin-top:
+    25px;
+}
+
+
+/* CALCULATOR RESULT */
+
+.calc-results {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap:
+    10px;
+
+  margin-top:
+    20px;
+}
+
+.calc-results div {
+  padding:
+    16px;
+
+  border:
+    1px solid
+    var(--line);
+
+  border-radius:
+    10px;
+}
+
+.calc-results .highlight {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(53, 215, 255, 0.12),
+      rgba(72, 224, 140, 0.08)
     );
 
-  energyCost +=
-    block1 * 0.218;
+  border-color:
+    #2a617b;
+}
 
-  remaining -= block1;
+.calc-results small {
+  display:
+    block;
 
+  color:
+    var(--muted);
 
-  /*
-   * Blok 2
-   */
+  font-size:
+    8px;
+}
 
-  if (remaining > 0) {
+.calc-results strong {
+  display:
+    block;
 
-    const block2 =
-      Math.min(
-        remaining,
-        100
-      );
-
-    energyCost +=
-      block2 * 0.334;
-
-    remaining -= block2;
-
-  }
+  margin-top:
+    7px;
+}
 
 
-  /*
-   * Blok 3
-   */
+/* TARIFF BREAKDOWN */
 
-  if (remaining > 0) {
+.tariff-breakdown {
+  display:
+    flex;
 
-    const block3 =
-      Math.min(
-        remaining,
-        300
-      );
+  gap:
+    8px;
 
-    energyCost +=
-      block3 * 0.516;
+  flex-wrap:
+    wrap;
 
-    remaining -= block3;
+  margin-top:
+    12px;
+}
 
-  }
+.tariff-breakdown p {
+  padding:
+    8px 10px;
 
+  background:
+    #07131f;
 
-  /*
-   * Baki
-   */
+  border:
+    1px solid
+    var(--line);
 
-  if (remaining > 0) {
+  border-radius:
+    8px;
 
-    energyCost +=
-      remaining * 0.546;
+  color:
+    var(--muted);
 
-  }
+  font-size:
+    10px;
 
+  margin:
+    0;
+}
 
-  const kwtbb =
-    energyCost * 0.016;
+.tariff-breakdown strong {
+  color:
+    white;
+}
 
+.tariff-note {
+  color:
+    #5f778c;
 
-  const total =
-    energyCost + kwtbb;
+  font-size:
+    9px;
 
-
-  if ($('monthlyUsage')) {
-
-    $('monthlyUsage').textContent =
-      kwh.toFixed(2) +
-      ' kWh';
-
-  }
-
-
-  if ($('monthlyCost')) {
-
-    $('monthlyCost').textContent =
-      'RM ' +
-      total.toFixed(2);
-
-  }
-
-
-  if ($('kwtbbCost')) {
-
-    $('kwtbbCost').textContent =
-      'RM ' +
-      kwtbb.toFixed(2);
-
-  }
-
-
-  if ($('dashboardBill')) {
-
-    $('dashboardBill').textContent =
-      'RM ' +
-      total.toFixed(2);
-
-  }
-
-
-  if ($('tariffBreakdown')) {
-
-    $('tariffBreakdown').innerHTML =
-      `
-      <p>
-        Caj tenaga:
-        <strong>RM ${energyCost.toFixed(2)}</strong>
-      </p>
-
-      <p>
-        KWTBB 1.6%:
-        <strong>RM ${kwtbb.toFixed(2)}</strong>
-      </p>
-
-      <p>
-        Tempoh bil:
-        <strong>${days} hari</strong>
-      </p>
-      `;
-
-  }
-
+  margin-top:
+    14px;
 }
 
 
 /* =========================================================
-   CALCULATOR BUTTON
+   TABLET RESPONSIVE
    ========================================================= */
 
-if ($('calculateUsage')) {
+@media (max-width: 900px) {
 
-  $('calculateUsage').addEventListener(
-    'click',
-    calculateBill
-  );
+  .site-nav {
+    display:
+      none;
+  }
 
+  .hero,
+  .about-grid,
+  .contact-section,
+  .auth-shell {
+    grid-template-columns:
+      1fr;
+  }
+
+  .hero {
+    gap:
+      60px;
+  }
+
+  .hero-console {
+    min-height:
+      470px;
+  }
+
+  .feature-grid,
+  .metric-grid {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .section-head {
+    display:
+      block;
+  }
+
+  .section-head > p {
+    margin-top:
+      25px;
+  }
+
+  .flow {
+    grid-template-columns:
+      1fr;
+  }
+
+  .flow i {
+    text-align:
+      center;
+
+    transform:
+      rotate(90deg);
+  }
+
+  .auth-showcase {
+    min-height:
+      55vh;
+  }
+
+  .dash-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .dash-intro {
+    display:
+      block;
+  }
+
+  .date-chip {
+    display:
+      inline-block;
+
+    margin-top:
+      12px;
+  }
 }
 
 
 /* =========================================================
-   INITIALIZE
+   PHONE RESPONSIVE
    ========================================================= */
 
-function initializeSystem() {
+@media (max-width: 560px) {
 
-  /*
-   * Default relay OFF
-   */
+  .hero {
+    padding-top:
+      45px;
+  }
 
-  relayState = 'off';
+  .hero h1 {
+    font-size:
+      46px;
 
-  renderRelayState();
+    letter-spacing:
+      -2px;
+  }
 
+  .lead {
+    font-size:
+      14px;
+  }
 
-  /*
-   * Cuba baca Firebase
-   */
+  .hero-actions {
+    align-items:
+      flex-start;
 
-  updateLiveSensorReadings();
+    flex-direction:
+      column;
 
-  updateRelayFromFirebase();
+    gap:
+      18px;
+  }
 
+  .hero-mini-stats {
+    display:
+      grid;
 
-  /*
-   * Kira bil awal
-   */
+    grid-template-columns:
+      1fr 1fr;
+  }
 
-  calculateBill();
+  .hero-mini-stats div {
+    min-width:
+      0;
+  }
 
+  .feature-grid,
+  .metric-grid,
+  .calc-results,
+  .calc-form {
+    grid-template-columns:
+      1fr;
+  }
+
+  .hero-console {
+    min-height:
+      430px;
+
+    padding:
+      16px;
+  }
+
+  .energy-ring {
+    width:
+      220px;
+
+    height:
+      220px;
+  }
+
+  .energy-ring strong {
+    font-size:
+      40px;
+  }
+
+  .site-header,
+  .dash-header {
+    padding:
+      0 16px;
+  }
+
+  .site-header .ghost-btn {
+    padding:
+      9px 11px;
+
+    font-size:
+      10px;
+  }
+
+  .brand {
+    font-size:
+      15px;
+  }
+
+  .dash-head-right .status-pill {
+    display:
+      none;
+  }
+
+  .section {
+    padding:
+      75px 22px;
+  }
+
+  .section h2 {
+    font-size:
+      36px;
+  }
+
+  .contact-section {
+    gap:
+      45px;
+  }
+
+  footer {
+    display:
+      block;
+
+    line-height:
+      2;
+  }
+
+  .auth-stats {
+    flex-wrap:
+      wrap;
+  }
+
+  .auth-showcase {
+    padding:
+      90px 28px 55px;
+  }
+
+  .auth-panel {
+    padding:
+      45px 20px;
+  }
+
+  .login-card {
+    padding:
+      27px 20px;
+  }
+
+  .dash-intro h1 {
+    font-size:
+      32px;
+  }
+
+  .dash-wrap {
+    padding:
+      40px 16px 70px;
+  }
 }
-
-
-/* =========================================================
-   AUTO REFRESH SENSOR
-   ========================================================= */
-
-setInterval(
-  function () {
-
-    updateLiveSensorReadings();
-
-  },
-  5000
-);
-
-
-/* =========================================================
-   AUTO REFRESH RELAY
-   ========================================================= */
-
-setInterval(
-  function () {
-
-    updateRelayFromFirebase();
-
-  },
-  3000
-);
-
-
-/* =========================================================
-   START
-   ========================================================= */
-
-initializeSystem();
