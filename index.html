@@ -1068,33 +1068,30 @@
 
   <!-- ================= FIREBASE CONFIG ================= -->
 
-  <script>
+<script>
+  window.ECOENERGY_CONFIG = {
 
-    window.ECOENERGY_CONFIG = {
+    // Netlify guna HTTPS.
+    // Biarkan kosong supaya browser tidak cuba akses
+    // ESP32 melalui HTTP local.
+    esp32BaseUrl: '',
 
-      /*
-       * Biar kosong dahulu. Sistem akan kekal OFFLINE
-       * sehingga IP ESP32 atau URL Firebase sebenar disetkan.
-       */
-      esp32BaseUrl: '',
+    // Firebase Realtime Database EcoEnergy
+    firebaseDatabaseUrl:
+      'https://ecoenergy-monitor-default-rtdb.asia-southeast1.firebasedatabase.app',
 
-      /*
-       * Firebase Realtime Database
-       */
-      firebaseDatabaseUrl: '',
+    // Path ESP32 dalam Firebase
+    firebaseDevicePath:
+      'devices/esp32-01'
 
-      /*
-       * Folder/device ESP32
-       */
-      firebaseDevicePath:
-        'devices/esp32-01'
-
-    };
-
-  </script>
+  };
+</script>
 
 
-  <script src="script.js"></script>
+<!-- ================= SCRIPT JS ================= -->
+
+<script src="script.js"></script>
 
 </body>
 </html>
+ 
