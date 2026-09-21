@@ -9,7 +9,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  >
 
   <link rel="stylesheet" href="styles.css">
 
@@ -45,7 +48,7 @@
 
     <main>
 
-      <!-- HERO -->
+      <!-- ================= HERO ================= -->
 
       <section class="hero-section" id="home">
 
@@ -103,7 +106,7 @@
               </span>
 
               <small id="heroConnectionStatus">
-                ESP32: OFFLINE
+                ESP32: MENYAMBUNG...
               </small>
 
             </div>
@@ -161,7 +164,7 @@
       </section>
 
 
-      <!-- ABOUT -->
+      <!-- ================= ABOUT ================= -->
 
       <section class="about-section content-section" id="about">
 
@@ -204,7 +207,7 @@
       </section>
 
 
-      <!-- SERVICES -->
+      <!-- ================= SERVICES ================= -->
 
       <section class="services-section content-section" id="services">
 
@@ -281,7 +284,7 @@
       </section>
 
 
-      <!-- CONTACT -->
+      <!-- ================= CONTACT ================= -->
 
       <section class="contact-section content-section" id="contact">
 
@@ -306,7 +309,10 @@
             di rumah dengan lebih baik.
           </p>
 
-          <a href="mailto:hello@ecoenergy.local" class="arrow-link">
+          <a
+            href="mailto:hello@ecoenergy.local"
+            class="arrow-link"
+          >
             hello@ecoenergy.local <span>↗</span>
           </a>
 
@@ -631,7 +637,7 @@
       </p>
 
 
-      <!-- METRIC -->
+      <!-- ================= METRIC ================= -->
 
       <div class="metric-grid">
 
@@ -694,7 +700,7 @@
           </strong>
 
           <span id="dashboardConnectionStatus">
-            ESP32 sedang disambungkan...
+            ESP32 sedang menyambung...
           </span>
 
         </article>
@@ -703,7 +709,7 @@
 
 
 
-      <!-- LIVE SENSOR -->
+      <!-- ================= LIVE SENSOR ================= -->
 
       <div class="relay-card">
 
@@ -744,7 +750,7 @@
 
 
 
-      <!-- RELAY -->
+      <!-- ================= RELAY ================= -->
 
       <div class="relay-card">
 
@@ -790,7 +796,7 @@
 
 
 
-      <!-- BUDGET -->
+      <!-- ================= BUDGET ================= -->
 
       <div class="budget-card">
 
@@ -839,7 +845,7 @@
 
 
 
-      <!-- 7 DAYS -->
+      <!-- ================= 7 DAYS ================= -->
 
       <div class="usage-card">
 
@@ -888,7 +894,7 @@
 
 
 
-      <!-- CALCULATOR -->
+      <!-- ================= CALCULATOR ================= -->
 
       <div class="calculator-card">
 
@@ -1030,17 +1036,18 @@
 
 
 
-  <!-- ================= FIREBASE CONFIG ================= -->
+  <!-- ================= ESP32 + FIREBASE CONFIG ================= -->
 
   <script>
 
     window.ECOENERGY_CONFIG = {
 
       /*
-       * Kosong kerana website tidak
-       * terus memanggil IP ESP32.
+       * IP ESP32
+       * ESP32 awak:
+       * 172.20.10.3
        */
-      esp32BaseUrl: '',
+      esp32BaseUrl: 'http://172.20.10.3',
 
       /*
        * Firebase Realtime Database
@@ -1049,7 +1056,7 @@
         'https://ecoenergy-monitor-default-rtdb.asia-southeast1.firebasedatabase.app',
 
       /*
-       * Folder/device ESP32
+       * Folder / device ESP32
        */
       firebaseDevicePath:
         'devices/esp32-01'
@@ -1059,7 +1066,10 @@
   </script>
 
 
+  <!-- ================= MAIN JAVASCRIPT ================= -->
+
   <script src="script.js"></script>
+
 
 </body>
 </html>
