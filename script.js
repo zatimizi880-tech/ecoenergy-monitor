@@ -1,1335 +1,1067 @@
 /* =========================================================
-   ECOENERGY MONITOR
-   SCRIPT.JS
-   ESP32 + PZEM-004T + FIREBASE + RELAY
+   SMARTGRID OPTIMIZER
+   Sistem Pengoptimum Bajet dan Tenaga Pintar Fasa Tunggal
+   Berasaskan IoT Menggunakan ESP32
    ========================================================= */
 
 
 /* =========================================================
-   1. CONFIGURATION
+   CONFIG
    ========================================================= */
 
-const config = window.ECOENERGY_CONFIG || {};
+const cloudConfig = window.ECOENERGY_CONFIG || {};
 
-const firebaseDatabaseUrl =
-  (config.firebaseDatabaseUrl || "").replace(/\/$/, "");
+const ESP32_BASE_URL =
+  cloudConfig.esp32BaseUrl
+    ? cloudConfig.esp32BaseUrl.replace(/\/$/, '')
+    : '';
 
-const firebaseDevicePath =
-  (config.firebaseDevicePath || "devices/esp32-01")
-    .replace(/^\/|\/$/g, "");
+const FIREBASE_DATABASE_URL =
+  cloudConfig.firebaseDatabaseUrl
+    ? cloudConfig.firebaseDatabaseUrl.replace(/\/$/, '')
+    : '';
+
+const FIREBASE_DEVICE_PATH =
+  cloudConfig.firebaseDevicePath ||
+  'devices/esp32-01';
 
 
 /* =========================================================
-   2. FIREBASE URL
+   GLOBAL VARIABLES
    ========================================================= */
 
-const readingUrl =
-  `${firebaseDatabaseUrl}/${firebaseDevicePath}/reading.json`;
+let relayState = 'off';
 
-const relayUrl =
-  `${firebaseDatabaseUrl}/${firebaseDevicePath}/relay.json`;
+let lastReading = {
+  voltage: 0,
+  current: 0,
+  power: 0,
+  energy: 0
+};
 
-const lastSeenUrl =
-  `${firebaseDatabaseUrl}/${firebaseDevicePath}/lastSeen.json`;
+let budgetLimit = 300;
 
+let currentUser = null;
 
-/* =========================================================
-   3. LOGIN ACCOUNT
-   ========================================================= */
+const themeButtons = document.querySelectorAll('[data-theme]');
 
-const LOGIN_USERNAME = "zati";
+function applyTheme(themeName) {
+  document.body.setAttribute('data-theme', themeName);
 
-/*
-   Masukkan password awak di bawah.
-   Contoh:
-
-   const LOGIN_PASSWORD = "password123";
-*/
-
-const LOGIN_PASSWORD = "Zatie0768@";
-
-
-/* =========================================================
-   4. ELEMENTS
-   ========================================================= */
-
-const sitePage =
-  document.getElementById("sitePage");
-
-const authShell =
-  document.getElementById("authShell");
-
-const dashboard =
-  document.getElementById("dashboard");
-
-
-/* LOGIN ELEMENT */
-
-const openLogin =
-  document.getElementById("openLogin");
-
-const heroLogin =
-  document.getElementById("heroLogin");
-
-const backHome =
-  document.getElementById("backHome");
-
-const loginForm =
-  document.getElementById("loginForm");
-
-const loginUser =
-  document.getElementById("loginUser");
-
-const loginPass =
-  document.getElementById("loginPass");
-
-const togglePass =
-  document.getElementById("togglePass");
-
-const message =
-  document.getElementById("message");
-
-const logout =
-  document.getElementById("logout");
-
-const userName =
-  document.getElementById("userName");
-
-
-/* =========================================================
-   5. HELPER
-   ========================================================= */
-
-function safeNumber(value) {
-
-  const number = Number(value);
-
-  if (!Number.isFinite(number)) {
-    return 0;
-  }
-
-  return number;
-}
-
-
-function formatNumber(value, decimal = 2) {
-
-  return safeNumber(value).toFixed(decimal);
-}
-
-
-/* =========================================================
-   6. PAGE CONTROL
-   ========================================================= */
-
-function showHome() {
-
-  sitePage.classList.remove("hidden");
-
-  authShell.classList.add("hidden");
-
-  dashboard.classList.add("hidden");
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
+  themeButtons.forEach((button) => {
+    const isActive = button.dataset.theme === themeName;
+    button.classList.toggle('active', isActive);
   });
 }
 
+themeButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    applyTheme(button.dataset.theme);
+  });
+});
+
+applyTheme('ocean');
+
+
+/* =========================================================
+   ELEMENT HELPER
+   ========================================================= */
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+
+/* =========================================================
+   FIREBASE PATH
+   ========================================================= */
+
+function firebasePath(path) {
+
+  return (
+    FIREBASE_DATABASE_URL +
+    '/' +
+    FIREBASE_DEVICE_PATH +
+    '/' +
+    path +
+    '.json'
+  );
+
+}
+
+
+/* =========================================================
+   PAGE ELEMENTS
+   ========================================================= */
+
+const sitePage = $('sitePage');
+const authShell = $('authShell');
+const dashboard = $('dashboard');
+
+const openLogin = $('openLogin');
+const heroLogin = $('heroLogin');
+const backHome = $('backHome');
+
+const loginForm = $('loginForm');
+const registerForm = $('registerForm');
+
+const showRegister = $('showRegister');
+const showLogin = $('showLogin');
+
+const logout = $('logout');
+
+const message = $('message');
+
+const userName = $('userName');
+
+
+/* =========================================================
+   LOGIN PAGE
+   ========================================================= */
 
 function showLoginPage() {
 
-  sitePage.classList.add("hidden");
+  sitePage.classList.add('hidden');
 
-  dashboard.classList.add("hidden");
+  authShell.classList.remove('hidden');
 
-  authShell.classList.remove("hidden");
+  dashboard.classList.add('hidden');
 
-  message.textContent = "";
+}
 
-  loginUser.focus();
+
+function showHomePage() {
+
+  sitePage.classList.remove('hidden');
+
+  authShell.classList.add('hidden');
+
+  dashboard.classList.add('hidden');
+
 }
 
 
 function showDashboard() {
 
-  sitePage.classList.add("hidden");
+  sitePage.classList.add('hidden');
 
-  authShell.classList.add("hidden");
+  authShell.classList.add('hidden');
 
-  dashboard.classList.remove("hidden");
+  dashboard.classList.remove('hidden');
 
-  userName.textContent = "Zati";
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
 }
 
 
 /* =========================================================
-   7. OPEN LOGIN
+   LOGIN BUTTONS
    ========================================================= */
 
 if (openLogin) {
 
   openLogin.addEventListener(
-    "click",
+    'click',
     showLoginPage
   );
+
 }
 
 
 if (heroLogin) {
 
   heroLogin.addEventListener(
-    "click",
+    'click',
     showLoginPage
   );
+
 }
 
-
-/* =========================================================
-   8. BACK HOME
-   ========================================================= */
 
 if (backHome) {
 
   backHome.addEventListener(
-    "click",
-    showHome
+    'click',
+    showHomePage
   );
+
 }
 
 
 /* =========================================================
-   9. SHOW / HIDE PASSWORD
+   SWITCH LOGIN / REGISTER
    ========================================================= */
 
-if (togglePass) {
+if (showRegister) {
 
-  togglePass.addEventListener(
-    "click",
+  showRegister.addEventListener(
+    'click',
     function () {
 
-      if (loginPass.type === "password") {
+      loginForm.classList.add('hidden');
 
-        loginPass.type = "text";
+      registerForm.classList.remove('hidden');
 
-        togglePass.textContent = "Sembunyi";
+      const title = $('formTitle');
+      const subtitle = $('formSubtitle');
 
-      } else {
+      if (title) {
+        title.textContent =
+          'Cipta Akaun';
+      }
 
-        loginPass.type = "password";
-
-        togglePass.textContent = "Lihat";
-
+      if (subtitle) {
+        subtitle.textContent =
+          'Daftar untuk lihat tenaga anda.';
       }
 
     }
   );
+
+}
+
+
+if (showLogin) {
+
+  showLogin.addEventListener(
+    'click',
+    function () {
+
+      registerForm.classList.add('hidden');
+
+      loginForm.classList.remove('hidden');
+
+      const title = $('formTitle');
+      const subtitle = $('formSubtitle');
+
+      if (title) {
+        title.textContent =
+          'Selamat Datang Kembali';
+      }
+
+      if (subtitle) {
+        subtitle.textContent =
+          'Log masuk untuk lihat tenaga anda.';
+      }
+
+    }
+  );
+
 }
 
 
 /* =========================================================
-   10. LOGIN
+   MESSAGE
+   ========================================================= */
+
+function showMessage(text) {
+
+  if (!message) return;
+
+  message.textContent = text;
+
+}
+
+
+/* =========================================================
+   LOGIN
    ========================================================= */
 
 if (loginForm) {
 
   loginForm.addEventListener(
-    "submit",
+    'submit',
     function (event) {
 
       event.preventDefault();
 
-
       const username =
-        loginUser.value.trim();
+        $('loginUser').value.trim();
 
       const password =
-        loginPass.value;
+        $('loginPass').value;
 
+      /*
+       * Demo login
+       */
 
       if (
-        username === LOGIN_USERNAME &&
-        password === LOGIN_PASSWORD
+        username === 'zati' &&
+        password === 'Zatie0768&'
       ) {
 
-        message.style.color =
-          "#48e08c";
-
-        message.textContent =
-          "Login berjaya!";
-
-
-        /*
-          Simpan status login.
-          Sesuai untuk demo FYP sahaja.
-        */
+        currentUser = username;
 
         localStorage.setItem(
-          "ecoenergyLogin",
-          "true"
+          'ecoenergyUser',
+          username
         );
 
+        if (userName) {
+          userName.textContent =
+            username;
+        }
 
-        setTimeout(
-          function () {
+        showMessage('');
 
-            showDashboard();
+        showDashboard();
 
-          },
-          400
-        );
+        updateLiveSensorReadings();
+
+        updateRelayFromFirebase();
 
       } else {
 
-        message.style.color =
-          "#ff6b7a";
-
-        message.textContent =
-          "Username atau password tidak betul.";
+        showMessage(
+          'Username atau password tidak betul.'
+        );
 
       }
 
     }
   );
+
 }
 
 
 /* =========================================================
-   11. LOGOUT
+   REGISTER
+   ========================================================= */
+
+if (registerForm) {
+
+  registerForm.addEventListener(
+    'submit',
+    function (event) {
+
+      event.preventDefault();
+
+      const username =
+        $('regUser').value.trim();
+
+      const password =
+        $('regPass').value;
+
+      const confirm =
+        $('regConfirm').value;
+
+      if (!username) {
+
+        showMessage(
+          'Sila masukkan username.'
+        );
+
+        return;
+
+      }
+
+
+      if (password.length < 6) {
+
+        showMessage(
+          'Password mestilah sekurang-kurangnya 6 aksara.'
+        );
+
+        return;
+
+      }
+
+
+      if (password !== confirm) {
+
+        showMessage(
+          'Password tidak sama.'
+        );
+
+        return;
+
+      }
+
+
+      localStorage.setItem(
+        'ecoenergyRegisteredUser',
+        username
+      );
+
+      localStorage.setItem(
+        'ecoenergyRegisteredPassword',
+        password
+      );
+
+
+      showMessage(
+        'Akaun berjaya didaftarkan. Sila log masuk.'
+      );
+
+
+      registerForm.classList.add('hidden');
+
+      loginForm.classList.remove('hidden');
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   LOGOUT
    ========================================================= */
 
 if (logout) {
 
   logout.addEventListener(
-    "click",
+    'click',
     function () {
 
+      currentUser = null;
+
       localStorage.removeItem(
-        "ecoenergyLogin"
+        'ecoenergyUser'
       );
 
-      loginUser.value = "";
+      dashboard.classList.add('hidden');
 
-      loginPass.value = "";
-
-      showHome();
+      showHomePage();
 
     }
   );
-}
-
-
-/* =========================================================
-   12. FIREBASE GET
-   ========================================================= */
-
-async function firebaseGet(url) {
-
-  try {
-
-    const response =
-      await fetch(
-        url,
-        {
-          method: "GET",
-          cache: "no-store"
-        }
-      );
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        `HTTP ${response.status}`
-      );
-
-    }
-
-
-    return await response.json();
-
-
-  } catch (error) {
-
-    console.error(
-      "Firebase GET error:",
-      error
-    );
-
-    return null;
-
-  }
-}
-
-
-/* =========================================================
-   13. FIREBASE PUT
-   ========================================================= */
-
-async function firebasePut(
-  url,
-  value
-) {
-
-  try {
-
-    const response =
-      await fetch(
-        url,
-        {
-          method: "PUT",
-
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify(value)
-        }
-      );
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        `HTTP ${response.status}`
-      );
-
-    }
-
-
-    return true;
-
-
-  } catch (error) {
-
-    console.error(
-      "Firebase PUT error:",
-      error
-    );
-
-    return false;
-
-  }
-}
-
-
-/* =========================================================
-   14. UPDATE SENSOR DISPLAY
-   ========================================================= */
-
-function updateSensorDisplay(data) {
-
-  if (!data) {
-    return;
-  }
-
-
-  /*
-     Support beberapa nama field
-     sekiranya Firebase menggunakan
-     voltage / current / power / energy
-  */
-
-  const voltage =
-    safeNumber(
-      data.voltage ??
-      data.voltan ??
-      0
-    );
-
-
-  const current =
-    safeNumber(
-      data.current ??
-      data.arus ??
-      0
-    );
-
-
-  const power =
-    safeNumber(
-      data.power ??
-      data.kuasa ??
-      0
-    );
-
-
-  const energy =
-    safeNumber(
-      data.energy ??
-      data.tenaga ??
-      0
-    );
-
-
-  /* =======================================================
-     LANDING PAGE
-     ======================================================= */
-
-  const valVoltage =
-    document.getElementById(
-      "val-voltage"
-    );
-
-  const valCurrent =
-    document.getElementById(
-      "val-current"
-    );
-
-  const valPower =
-    document.getElementById(
-      "val-power"
-    );
-
-
-  if (valVoltage) {
-
-    valVoltage.textContent =
-      `${formatNumber(voltage)} V`;
-
-  }
-
-
-  if (valCurrent) {
-
-    valCurrent.textContent =
-      `${formatNumber(current)} A`;
-
-  }
-
-
-  if (valPower) {
-
-    valPower.textContent =
-      `${formatNumber(power)} W`;
-
-  }
-
-
-  /* =======================================================
-     HERO CONSOLE
-     ======================================================= */
-
-  const heroPower =
-    document.getElementById(
-      "heroPower"
-    );
-
-  const heroEnergy =
-    document.getElementById(
-      "heroEnergy"
-    );
-
-
-  if (heroPower) {
-
-    heroPower.textContent =
-      formatNumber(power);
-
-  }
-
-
-  if (heroEnergy) {
-
-    heroEnergy.textContent =
-      `${formatNumber(energy)} kWh`;
-
-  }
-
-
-  /* =======================================================
-     DASHBOARD
-     ======================================================= */
-
-  const dashboardVoltage =
-    document.getElementById(
-      "dashboardVoltage"
-    );
-
-  const dashboardCurrent =
-    document.getElementById(
-      "dashboardCurrent"
-    );
-
-  const dashboardPower =
-    document.getElementById(
-      "dashboardPower"
-    );
-
-  const dashboardUsage =
-    document.getElementById(
-      "dashboardUsage"
-    );
-
-
-  if (dashboardVoltage) {
-
-    dashboardVoltage.textContent =
-      `${formatNumber(voltage)} V`;
-
-  }
-
-
-  if (dashboardCurrent) {
-
-    dashboardCurrent.textContent =
-      `${formatNumber(current)} A`;
-
-  }
-
-
-  if (dashboardPower) {
-
-    dashboardPower.textContent =
-      `${formatNumber(power)} W`;
-
-  }
-
-
-  if (dashboardUsage) {
-
-    dashboardUsage.textContent =
-      formatNumber(energy);
-
-  }
-
-
-  /*
-     Masukkan nilai energy semasa
-     ke calculator secara automatik.
-  */
-
-  const totalKwh =
-    document.getElementById(
-      "totalKwh"
-    );
-
-
-  if (totalKwh) {
-
-    totalKwh.value =
-      formatNumber(energy);
-
-  }
-
-
-  updateBudgetDisplay(
-    energy
-  );
 
 }
 
 
 /* =========================================================
-   15. READ SENSOR FROM FIREBASE
-   ========================================================= */
-
-async function fetchReading() {
-
-  const data =
-    await firebaseGet(
-      readingUrl
-    );
-
-
-  if (data) {
-
-    updateSensorDisplay(
-      data
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   16. ONLINE / OFFLINE STATUS
+   CONNECTION STATUS
    ========================================================= */
 
 function setConnectionStatus(
-  online
+  connected,
+  text = null
 ) {
 
   const heroStatus =
-    document.getElementById(
-      "heroConnectionStatus"
-    );
+    $('heroConnectionStatus');
 
   const dashboardStatus =
-    document.getElementById(
-      "dashboardConnectionStatus"
-    );
+    $('dashboardConnectionStatus');
 
 
-  if (heroStatus) {
+  if (connected) {
 
-    heroStatus.textContent =
-      online
-        ? "ESP32 ONLINE"
-        : "ESP32 OFFLINE";
+    if (heroStatus) {
 
-  }
-
-
-  if (dashboardStatus) {
-
-    dashboardStatus.textContent =
-      online
-        ? "ESP32 ONLINE"
-        : "ESP32 OFFLINE";
-
-
-    if (online) {
-
-      dashboardStatus.style.color =
-        "#aef4cc";
-
-      dashboardStatus.style.borderColor =
-        "rgba(72,224,140,.3)";
-
-      dashboardStatus.style.background =
-        "rgba(72,224,140,.06)";
-
-    } else {
-
-      dashboardStatus.style.color =
-        "#ff9aa5";
-
-      dashboardStatus.style.borderColor =
-        "rgba(255,107,122,.35)";
-
-      dashboardStatus.style.background =
-        "rgba(255,107,122,.07)";
+      heroStatus.textContent =
+        text || 'ESP32 / CLOUD: CONNECTED';
 
     }
 
-  }
 
+    if (dashboardStatus) {
 
-  /*
-     Tukar warna pulse.
-  */
+      dashboardStatus.textContent =
+        text || 'ESP32 / Firebase tersambung';
 
-  document
-    .querySelectorAll(".pulse")
-    .forEach(
-      function (pulse) {
-
-        if (online) {
-
-          pulse.style.background =
-            "#48e08c";
-
-          pulse.style.boxShadow =
-            "0 0 12px #48e08c";
-
-        } else {
-
-          pulse.style.background =
-            "#ff6b7a";
-
-          pulse.style.boxShadow =
-            "0 0 12px #ff6b7a";
-
-        }
-
-      }
-    );
-
-}
-
-
-/* =========================================================
-   17. CHECK ESP32 HEARTBEAT
-   ========================================================= */
-
-async function checkHeartbeat() {
-
-  const lastSeen =
-    await firebaseGet(
-      lastSeenUrl
-    );
-
-
-  if (
-    lastSeen === null ||
-    lastSeen === undefined
-  ) {
-
-    setConnectionStatus(false);
-
-    return;
-  }
-
-
-  const timestamp =
-    Number(lastSeen);
-
-
-  if (!Number.isFinite(timestamp)) {
-
-    setConnectionStatus(false);
-
-    return;
-  }
-
-
-  const now =
-    Date.now();
-
-
-  const difference =
-    now - timestamp;
-
-
-  /*
-     ESP32 heartbeat dihantar setiap
-     lebih kurang 5 saat.
-
-     Website anggap ONLINE jika
-     lastSeen kurang daripada 20 saat.
-  */
-
-  const online =
-    difference >= 0 &&
-    difference < 20000;
-
-
-  setConnectionStatus(
-    online
-  );
-
-}
-
-
-/* =========================================================
-   18. RELAY ELEMENTS
-   ========================================================= */
-
-const relayOnButton =
-  document.getElementById(
-    "relayOn"
-  );
-
-const relayOffButton =
-  document.getElementById(
-    "relayOff"
-  );
-
-const relayStatusText =
-  document.getElementById(
-    "relayStatusText"
-  );
-
-const heroRelay =
-  document.getElementById(
-    "heroRelay"
-  );
-
-
-/* =========================================================
-   19. UPDATE RELAY DISPLAY
-   ========================================================= */
-
-function updateRelayDisplay(
-  state
-) {
-
-  const isOn =
-    String(state)
-      .toLowerCase() === "on";
-
-
-  if (relayOnButton) {
-
-    relayOnButton.classList.toggle(
-      "active",
-      isOn
-    );
-
-  }
-
-
-  if (relayOffButton) {
-
-    relayOffButton.classList.toggle(
-      "active",
-      !isOn
-    );
-
-  }
-
-
-  if (relayStatusText) {
-
-    relayStatusText.textContent =
-      isOn
-        ? "Relay sedang ON."
-        : "Relay sedang OFF.";
-
-  }
-
-
-  if (heroRelay) {
-
-    heroRelay.textContent =
-      isOn
-        ? "ON"
-        : "OFF";
-
-
-    heroRelay.style.color =
-      isOn
-        ? "#48e08c"
-        : "#ff6b7a";
-
-  }
-
-
-  const relayLed =
-    document.querySelector(
-      ".relay-led"
-    );
-
-
-  if (relayLed) {
-
-    relayLed.style.background =
-      isOn
-        ? "#48e08c"
-        : "#ff6b7a";
-
-
-    relayLed.style.boxShadow =
-      isOn
-        ? "0 0 12px #48e08c"
-        : "0 0 12px #ff6b7a";
-
-  }
-
-}
-
-
-/* =========================================================
-   20. SEND RELAY COMMAND
-   ========================================================= */
-
-async function setRelay(
-  state
-) {
-
-  const relayState =
-    state
-      ? "on"
-      : "off";
-
-
-  /*
-     Disable button sekejap supaya
-     user tidak tekan terlalu banyak.
-  */
-
-  if (relayOnButton) {
-
-    relayOnButton.disabled =
-      true;
-
-  }
-
-
-  if (relayOffButton) {
-
-    relayOffButton.disabled =
-      true;
-
-  }
-
-
-  const success =
-    await firebasePut(
-      relayUrl,
-      relayState
-    );
-
-
-  if (success) {
-
-    updateRelayDisplay(
-      relayState
-    );
+    }
 
   } else {
 
-    alert(
-      "Gagal menghantar arahan relay ke Firebase."
-    );
+    if (heroStatus) {
 
-  }
-
-
-  if (relayOnButton) {
-
-    relayOnButton.disabled =
-      false;
-
-  }
-
-
-  if (relayOffButton) {
-
-    relayOffButton.disabled =
-      false;
-
-  }
-
-}
-
-
-/* =========================================================
-   21. RELAY ON BUTTON
-   ========================================================= */
-
-if (relayOnButton) {
-
-  relayOnButton.addEventListener(
-    "click",
-    function () {
-
-      setRelay(true);
+      heroStatus.textContent =
+        'ESP32: OFFLINE';
 
     }
-  );
-
-}
 
 
-/* =========================================================
-   22. RELAY OFF BUTTON
-   ========================================================= */
+    if (dashboardStatus) {
 
-if (relayOffButton) {
-
-  relayOffButton.addEventListener(
-    "click",
-    function () {
-
-      setRelay(false);
+      dashboardStatus.textContent =
+        'ESP32 / Firebase tidak tersambung';
 
     }
-  );
+
+  }
 
 }
 
 
 /* =========================================================
-   23. READ RELAY STATE
+   DISPLAY SENSOR
    ========================================================= */
 
-async function fetchRelayState() {
+function displayReading(reading) {
 
-  const relayState =
-    await firebaseGet(
-      relayUrl
-    );
+  if (!reading) return;
 
 
-  if (
-    relayState === null ||
-    relayState === undefined
-  ) {
+  const voltage =
+    Number(reading.voltage) || 0;
 
-    return;
+  const current =
+    Number(reading.current) || 0;
+
+  const power =
+    Number(reading.power) || 0;
+
+  const energy =
+    Number(reading.energy) || 0;
+
+
+  lastReading = {
+    voltage,
+    current,
+    power,
+    energy
+  };
+
+
+  /* HOME */
+
+  if ($('val-voltage')) {
+
+    $('val-voltage').textContent =
+      voltage.toFixed(2) + ' V';
+
   }
 
 
-  updateRelayDisplay(
-    relayState
-  );
+  if ($('val-current')) {
+
+    $('val-current').textContent =
+      current.toFixed(2) + ' A';
+
+  }
+
+
+  if ($('val-power')) {
+
+    $('val-power').textContent =
+      power.toFixed(2) + ' W';
+
+  }
+
+
+  /* DASHBOARD */
+
+  if ($('dashboardVoltage')) {
+
+    $('dashboardVoltage').textContent =
+      voltage.toFixed(2) + ' V';
+
+  }
+
+
+  if ($('dashboardCurrent')) {
+
+    $('dashboardCurrent').textContent =
+      current.toFixed(2) + ' A';
+
+  }
+
+
+  if ($('dashboardPower')) {
+
+    $('dashboardPower').textContent =
+      power.toFixed(2) + ' W';
+
+  }
+
+
+  /* ENERGY */
+
+  if ($('totalKwh')) {
+
+    $('totalKwh').value =
+      energy.toFixed(2);
+
+  }
+
+
+  if ($('dashboardUsage')) {
+
+    $('dashboardUsage').textContent =
+      energy.toFixed(2);
+
+  }
+
+
+  updateBudget(energy);
 
 }
 
 
 /* =========================================================
-   24. ENERGY COST CALCULATION
+   GET SENSOR DATA
    ========================================================= */
 
-function calculateElectricityCost(
-  kwh
-) {
+async function fetchLatestReading() {
 
-  let remaining =
-    Math.max(
-      0,
-      safeNumber(kwh)
-    );
+  let reading = null;
 
 
-  let subtotal =
-    0;
+  /*
+   * 1. Cuba ESP32 secara direct
+   * hanya jika esp32BaseUrl digunakan.
+   */
 
+  if (ESP32_BASE_URL) {
 
-  const breakdown =
-    [];
+    try {
 
+      const response =
+        await fetch(
+          ESP32_BASE_URL +
+          '/api/latest',
+          {
+            method: 'GET'
+          }
+        );
 
-  /* FIRST 100 kWh */
 
-  const tier1 =
-    Math.min(
-      remaining,
-      100
-    );
+      if (response.ok) {
 
+        const data =
+          await response.json();
 
-  if (tier1 > 0) {
+        reading =
+          data.reading || data;
 
-    const cost =
-      tier1 * 0.218;
+      }
 
+    } catch (error) {
 
-    subtotal +=
-      cost;
+      console.log(
+        'Direct ESP32 gagal:',
+        error
+      );
 
-
-    breakdown.push({
-      name:
-        "100 kWh pertama",
-
-      kwh:
-        tier1,
-
-      rate:
-        0.218,
-
-      cost:
-        cost
-    });
-
-
-    remaining -=
-      tier1;
-
-  }
-
-
-  /* NEXT 100 kWh */
-
-  const tier2 =
-    Math.min(
-      remaining,
-      100
-    );
-
-
-  if (tier2 > 0) {
-
-    const cost =
-      tier2 * 0.334;
-
-
-    subtotal +=
-      cost;
-
-
-    breakdown.push({
-      name:
-        "100 kWh seterusnya",
-
-      kwh:
-        tier2,
-
-      rate:
-        0.334,
-
-      cost:
-        cost
-    });
-
-
-    remaining -=
-      tier2;
-
-  }
-
-
-  /* NEXT 300 kWh */
-
-  const tier3 =
-    Math.min(
-      remaining,
-      300
-    );
-
-
-  if (tier3 > 0) {
-
-    const cost =
-      tier3 * 0.516;
-
-
-    subtotal +=
-      cost;
-
-
-    breakdown.push({
-      name:
-        "300 kWh seterusnya",
-
-      kwh:
-        tier3,
-
-      rate:
-        0.516,
-
-      cost:
-        cost
-    });
-
-
-    remaining -=
-      tier3;
-
-  }
-
-
-  /* ABOVE 500 kWh */
-
-  if (remaining > 0) {
-
-    const cost =
-      remaining * 0.546;
-
-
-    subtotal +=
-      cost;
-
-
-    breakdown.push({
-      name:
-        "Melebihi 500 kWh",
-
-      kwh:
-        remaining,
-
-      rate:
-        0.546,
-
-      cost:
-        cost
-    });
+    }
 
   }
 
 
   /*
-     KWTBB 1.6%
-     Untuk formula prototaip FYP.
-  */
+   * 2. Jika direct ESP32 gagal,
+   * baca Firebase.
+   */
 
-  const kwtbb =
-    subtotal * 0.016;
+  if (!reading && FIREBASE_DATABASE_URL) {
+
+    try {
+
+      const response =
+        await fetch(
+          firebasePath('reading'),
+          {
+            method: 'GET',
+            cache: 'no-store'
+          }
+        );
 
 
-  const total =
-    subtotal + kwtbb;
+      if (response.ok) {
+
+        reading =
+          await response.json();
+
+      }
+
+    } catch (error) {
+
+      console.log(
+        'Firebase reading gagal:',
+        error
+      );
+
+    }
+
+  }
 
 
-  return {
+  if (reading) {
 
-    subtotal:
-      subtotal,
+    displayReading(reading);
 
-    kwtbb:
-      kwtbb,
+    setConnectionStatus(
+      true,
+      'ESP32 / Firebase tersambung'
+    );
 
-    total:
-      total,
+    return true;
 
-    breakdown:
-      breakdown
+  }
 
-  };
+
+  setConnectionStatus(false);
+
+  return false;
 
 }
 
 
 /* =========================================================
-   25. UPDATE BUDGET DISPLAY
+   LIVE SENSOR UPDATE
    ========================================================= */
 
-function updateBudgetDisplay(
+async function updateLiveSensorReadings() {
+
+  await fetchLatestReading();
+
+}
+
+
+/* =========================================================
+   RELAY UI
+   ========================================================= */
+
+function renderRelayState() {
+
+  const onButton =
+    $('relayOn');
+
+  const offButton =
+    $('relayOff');
+
+  const text =
+    $('relayStatusText');
+
+
+  if (relayState === 'on') {
+
+    if (onButton) {
+
+      onButton.classList.add(
+        'active'
+      );
+
+    }
+
+
+    if (offButton) {
+
+      offButton.classList.remove(
+        'active'
+      );
+
+    }
+
+
+    if (text) {
+
+      text.textContent =
+        'Relay sedang ON.';
+
+    }
+
+  } else {
+
+    if (onButton) {
+
+      onButton.classList.remove(
+        'active'
+      );
+
+    }
+
+
+    if (offButton) {
+
+      offButton.classList.add(
+        'active'
+      );
+
+    }
+
+
+    if (text) {
+
+      text.textContent =
+        'Relay sedang OFF.';
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   SEND RELAY TO FIREBASE
+   ========================================================= */
+
+async function sendRelayToFirebase(
+  state
+) {
+
+  if (!FIREBASE_DATABASE_URL) {
+
+    throw new Error(
+      'Firebase URL belum ditetapkan.'
+    );
+
+  }
+
+
+  const response =
+    await fetch(
+      firebasePath('relay'),
+      {
+        method: 'PUT',
+
+        headers: {
+          'Content-Type':
+            'application/json'
+        },
+
+        body: JSON.stringify(state)
+      }
+    );
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      'Firebase gagal menerima arahan relay.'
+    );
+
+  }
+
+
+  return true;
+
+}
+
+
+/* =========================================================
+   SET RELAY
+   ========================================================= */
+
+async function setRelayState(
+  state
+) {
+
+  relayState = state;
+
+  renderRelayState();
+
+
+  try {
+
+    /*
+     * Cuba direct ESP32 dahulu
+     */
+
+    if (ESP32_BASE_URL) {
+
+      try {
+
+        const response =
+          await fetch(
+            ESP32_BASE_URL +
+            '/api/relay',
+            {
+              method: 'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body: JSON.stringify({
+                state: state
+              })
+            }
+          );
+
+
+        if (response.ok) {
+
+          setConnectionStatus(
+            true,
+            'ESP32 tersambung'
+          );
+
+          return;
+
+        }
+
+      } catch (error) {
+
+        console.log(
+          'Direct ESP32 relay gagal:',
+          error
+        );
+
+      }
+
+    }
+
+
+    /*
+     * Jika direct ESP32 tidak digunakan,
+     * hantar arahan ke Firebase.
+     */
+
+    await sendRelayToFirebase(
+      state
+    );
+
+
+    setConnectionStatus(
+      true,
+      'Arahan relay dihantar ke Firebase'
+    );
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    setConnectionStatus(
+      false
+    );
+
+    alert(
+      'Arahan relay gagal dihantar ke Firebase.'
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   READ RELAY FROM FIREBASE
+   ========================================================= */
+
+async function updateRelayFromFirebase() {
+
+  if (!FIREBASE_DATABASE_URL) {
+    return;
+  }
+
+
+  try {
+
+    const response =
+      await fetch(
+        firebasePath('relay'),
+        {
+          method: 'GET',
+          cache: 'no-store'
+        }
+      );
+
+
+    if (!response.ok) {
+      return;
+    }
+
+
+    const state =
+      await response.json();
+
+
+    if (
+      state === 'on' ||
+      state === 'off'
+    ) {
+
+      relayState = state;
+
+      renderRelayState();
+
+    }
+
+  } catch (error) {
+
+    console.log(
+      'Baca relay Firebase gagal:',
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   RELAY BUTTON
+   ========================================================= */
+
+if ($('relayOn')) {
+
+  $('relayOn').addEventListener(
+    'click',
+    function () {
+
+      setRelayState('on');
+
+    }
+  );
+
+}
+
+
+if ($('relayOff')) {
+
+  $('relayOff').addEventListener(
+    'click',
+    function () {
+
+      setRelayState('off');
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   BUDGET
+   ========================================================= */
+
+function updateBudget(
   energy
 ) {
 
-  const target =
-    300;
-
-
   const usage =
-    safeNumber(
-      energy
-    );
-
-
-  const cost =
-    calculateElectricityCost(
-      usage
-    );
-
+    Number(energy) || 0;
 
   const percentage =
+    budgetLimit > 0
+      ? (usage / budgetLimit) * 100
+      : 0;
+
+
+  const safePercentage =
     Math.min(
-      (usage / target) * 100,
+      Math.max(
+        percentage,
+        0
+      ),
       100
     );
 
 
-  const dashboardBill =
-    document.getElementById(
-      "dashboardBill"
-    );
-
   const progressBar =
-    document.getElementById(
-      "budget-progress-bar"
-    );
+    $('budget-progress-bar');
 
   const progressText =
-    document.getElementById(
-      "budget-progress-text"
-    );
+    $('budget-progress-text');
 
-  const dashboardStatus =
-    document.getElementById(
-      "dashboardStatus"
-    );
+  const systemStatus =
+    $('system-status-text');
 
   const recommendation =
-    document.getElementById(
-      "smart-recommendation-box"
-    );
+    $('smart-recommendation-box');
 
-
-  if (dashboardBill) {
-
-    dashboardBill.textContent =
-      `RM ${cost.total.toFixed(2)}`;
-
-  }
+  const dashboardStatus =
+    $('dashboardStatus');
 
 
   if (progressBar) {
 
     progressBar.style.width =
-      `${percentage}%`;
+      safePercentage + '%';
 
   }
 
@@ -1337,26 +1069,30 @@ function updateBudgetDisplay(
   if (progressText) {
 
     progressText.textContent =
-      `${usage.toFixed(2)} kWh daripada ${target} kWh sasaran`;
+      usage.toFixed(2) +
+      ' kWh daripada ' +
+      budgetLimit +
+      ' kWh sasaran (' +
+      percentage.toFixed(1) +
+      '%)';
 
   }
 
 
-  /* =======================================================
-     SMART STATUS
-     ======================================================= */
+  if (percentage >= 100) {
 
-  if (
-    percentage < 70
-  ) {
+    if (systemStatus) {
+
+      systemStatus.textContent =
+        'BAJET DICAPAI';
+
+    }
+
 
     if (dashboardStatus) {
 
       dashboardStatus.textContent =
-        "NORMAL";
-
-      dashboardStatus.style.color =
-        "#8ff0b8";
+        'BAJET DICAPAI';
 
     }
 
@@ -1364,24 +1100,24 @@ function updateBudgetDisplay(
     if (recommendation) {
 
       recommendation.textContent =
-        "Penggunaan tenaga masih dalam sasaran. Teruskan pemantauan penggunaan elektrik.";
-
-      recommendation.style.borderColor =
-        "#48e08c";
+        'Penggunaan telah mencapai sasaran bajet.';
 
     }
 
-  } else if (
-    percentage < 90
-  ) {
+  } else if (percentage >= 80) {
+
+    if (systemStatus) {
+
+      systemStatus.textContent =
+        'HAMPIR HAD';
+
+    }
+
 
     if (dashboardStatus) {
 
       dashboardStatus.textContent =
-        "PERHATIAN";
-
-      dashboardStatus.style.color =
-        "#ffc857";
+        'HAMPIR HAD';
 
     }
 
@@ -1389,22 +1125,24 @@ function updateBudgetDisplay(
     if (recommendation) {
 
       recommendation.textContent =
-        "Penggunaan tenaga semakin menghampiri sasaran. Kurangkan penggunaan beban yang tidak diperlukan.";
-
-      recommendation.style.borderColor =
-        "#ffc857";
+        'Penggunaan menghampiri had bajet.';
 
     }
 
   } else {
 
+    if (systemStatus) {
+
+      systemStatus.textContent =
+        'NORMAL';
+
+    }
+
+
     if (dashboardStatus) {
 
       dashboardStatus.textContent =
-        "TINGGI";
-
-      dashboardStatus.style.color =
-        "#ff6b7a";
+        'NORMAL';
 
     }
 
@@ -1412,10 +1150,7 @@ function updateBudgetDisplay(
     if (recommendation) {
 
       recommendation.textContent =
-        "Penggunaan tenaga hampir atau telah mencapai sasaran. Pertimbangkan untuk mematikan beban yang tidak diperlukan.";
-
-      recommendation.style.borderColor =
-        "#ff6b7a";
+        'Penggunaan tenaga masih dalam sasaran.';
 
     }
 
@@ -1425,272 +1160,250 @@ function updateBudgetDisplay(
 
 
 /* =========================================================
-   26. MANUAL BILL CALCULATOR
+   BILL CALCULATOR
    ========================================================= */
 
-const calculateUsageButton =
-  document.getElementById(
-    "calculateUsage"
-  );
+function calculateBill() {
+
+  const kwh =
+    Number(
+      $('totalKwh')?.value
+    ) || 0;
 
 
-if (calculateUsageButton) {
-
-  calculateUsageButton.addEventListener(
-    "click",
-    function () {
-
-      const totalKwhInput =
-        document.getElementById(
-          "totalKwh"
-        );
+  const days =
+    Number(
+      $('billingDays')?.value
+    ) || 30;
 
 
-      const billingDaysInput =
-        document.getElementById(
-          "billingDays"
-        );
+  /*
+   * Kadar contoh.
+   * Boleh ubah mengikut kadar tarif
+   * yang digunakan dalam projek.
+   */
+
+  let energyCost = 0;
+
+  let remaining = kwh;
 
 
-      const kwh =
-        safeNumber(
-          totalKwhInput.value
-        );
+  /*
+   * Blok 1
+   */
 
-
-      const days =
-        Math.max(
-          1,
-          safeNumber(
-            billingDaysInput.value
-          )
-        );
-
-
-      /*
-         Scale kepada 30 hari.
-
-         Contoh:
-         10 kWh dalam 5 hari
-         → anggaran 60 kWh / 30 hari
-      */
-
-      const estimatedMonthlyUsage =
-        (kwh / days) * 30;
-
-
-      const result =
-        calculateElectricityCost(
-          estimatedMonthlyUsage
-        );
-
-
-      /* DISPLAY USAGE */
-
-      const monthlyUsage =
-        document.getElementById(
-          "monthlyUsage"
-        );
-
-
-      if (monthlyUsage) {
-
-        monthlyUsage.textContent =
-          `${estimatedMonthlyUsage.toFixed(2)} kWh`;
-
-      }
-
-
-      /* DISPLAY TOTAL COST */
-
-      const monthlyCost =
-        document.getElementById(
-          "monthlyCost"
-        );
-
-
-      if (monthlyCost) {
-
-        monthlyCost.textContent =
-          `RM ${result.total.toFixed(2)}`;
-
-      }
-
-
-      /* DISPLAY KWTBB */
-
-      const kwtbbCost =
-        document.getElementById(
-          "kwtbbCost"
-        );
-
-
-      if (kwtbbCost) {
-
-        kwtbbCost.textContent =
-          `RM ${result.kwtbb.toFixed(2)}`;
-
-      }
-
-
-      /* TARIFF BREAKDOWN */
-
-      const tariffBreakdown =
-        document.getElementById(
-          "tariffBreakdown"
-        );
-
-
-      if (tariffBreakdown) {
-
-        tariffBreakdown.innerHTML =
-          "";
-
-
-        result.breakdown.forEach(
-          function (item) {
-
-            const row =
-              document.createElement(
-                "p"
-              );
-
-
-            row.innerHTML =
-              `${item.name}: ` +
-              `<strong>` +
-              `${item.kwh.toFixed(2)} kWh × ` +
-              `RM ${item.rate.toFixed(3)} = ` +
-              `RM ${item.cost.toFixed(2)}` +
-              `</strong>`;
-
-
-            tariffBreakdown.appendChild(
-              row
-            );
-
-          }
-        );
-
-      }
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   27. SYSTEM STATUS
-   ========================================================= */
-
-function updateSystemStatus() {
-
-  const systemStatus =
-    document.getElementById(
-      "system-status-text"
+  const block1 =
+    Math.min(
+      remaining,
+      100
     );
 
+  energyCost +=
+    block1 * 0.218;
 
-  if (!systemStatus) {
-    return;
+  remaining -= block1;
+
+
+  /*
+   * Blok 2
+   */
+
+  if (remaining > 0) {
+
+    const block2 =
+      Math.min(
+        remaining,
+        100
+      );
+
+    energyCost +=
+      block2 * 0.334;
+
+    remaining -= block2;
+
   }
 
 
-  systemStatus.textContent =
-    "NORMAL";
+  /*
+   * Blok 3
+   */
 
-  systemStatus.style.color =
-    "#48e08c";
+  if (remaining > 0) {
+
+    const block3 =
+      Math.min(
+        remaining,
+        300
+      );
+
+    energyCost +=
+      block3 * 0.516;
+
+    remaining -= block3;
+
+  }
+
+
+  /*
+   * Baki
+   */
+
+  if (remaining > 0) {
+
+    energyCost +=
+      remaining * 0.546;
+
+  }
+
+
+  const kwtbb =
+    energyCost * 0.016;
+
+
+  const total =
+    energyCost + kwtbb;
+
+
+  if ($('monthlyUsage')) {
+
+    $('monthlyUsage').textContent =
+      kwh.toFixed(2) +
+      ' kWh';
+
+  }
+
+
+  if ($('monthlyCost')) {
+
+    $('monthlyCost').textContent =
+      'RM ' +
+      total.toFixed(2);
+
+  }
+
+
+  if ($('kwtbbCost')) {
+
+    $('kwtbbCost').textContent =
+      'RM ' +
+      kwtbb.toFixed(2);
+
+  }
+
+
+  if ($('dashboardBill')) {
+
+    $('dashboardBill').textContent =
+      'RM ' +
+      total.toFixed(2);
+
+  }
+
+
+  if ($('tariffBreakdown')) {
+
+    $('tariffBreakdown').innerHTML =
+      `
+      <p>
+        Caj tenaga:
+        <strong>RM ${energyCost.toFixed(2)}</strong>
+      </p>
+
+      <p>
+        KWTBB 1.6%:
+        <strong>RM ${kwtbb.toFixed(2)}</strong>
+      </p>
+
+      <p>
+        Tempoh bil:
+        <strong>${days} hari</strong>
+      </p>
+      `;
+
+  }
 
 }
 
 
 /* =========================================================
-   28. INITIAL LOAD
+   CALCULATOR BUTTON
    ========================================================= */
 
-async function initialLoad() {
+if ($('calculateUsage')) {
 
-  console.log(
-    "EcoEnergy Monitor starting..."
-  );
-
-
-  console.log(
-    "Reading URL:",
-    readingUrl
-  );
-
-
-  console.log(
-    "Relay URL:",
-    relayUrl
-  );
-
-
-  console.log(
-    "Heartbeat URL:",
-    lastSeenUrl
-  );
-
-
-  updateSystemStatus();
-
-
-  await Promise.all([
-    fetchReading(),
-    fetchRelayState(),
-    checkHeartbeat()
-  ]);
-
-
-  console.log(
-    "EcoEnergy Monitor ready."
+  $('calculateUsage').addEventListener(
+    'click',
+    calculateBill
   );
 
 }
 
 
 /* =========================================================
-   29. AUTO REFRESH
+   INITIALIZE
    ========================================================= */
 
-/*
-   Sensor reading:
-   setiap 5 saat
-*/
+function initializeSystem() {
+
+  /*
+   * Default relay OFF
+   */
+
+  relayState = 'off';
+
+  renderRelayState();
+
+  setConnectionStatus(false, 'ESP32: OFFLINE');
+
+
+  /*
+   * Cuba baca Firebase dan ESP32 sahaja jika URL benar-benar disetkan.
+   */
+
+  updateLiveSensorReadings();
+
+  updateRelayFromFirebase();
+
+
+  /*
+   * Kira bil awal
+   */
+
+  calculateBill();
+
+}
+
+
+/* =========================================================
+   AUTO REFRESH SENSOR
+   ========================================================= */
 
 setInterval(
-  fetchReading,
+  function () {
+
+    updateLiveSensorReadings();
+
+  },
   5000
 );
 
 
-/*
-   ESP32 online/offline:
-   setiap 5 saat
-*/
+/* =========================================================
+   AUTO REFRESH RELAY
+   ========================================================= */
 
 setInterval(
-  checkHeartbeat,
-  5000
-);
+  function () {
 
+    updateRelayFromFirebase();
 
-/*
-   Relay:
-   setiap 3 saat
-*/
-
-setInterval(
-  fetchRelayState,
+  },
   3000
 );
 
 
 /* =========================================================
-   30. START APPLICATION
+   START
    ========================================================= */
 
-initialLoad();
+initializeSystem();
