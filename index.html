@@ -3,668 +3,1074 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07111f">
 
-  <title>EcoEnergy Monitor</title>
+  <title>EcoEnergy Monitor | Smart Energy & Budget</title>
 
+  <meta
+    name="description"
+    content="Sistem Pengoptimum Bajet dan Tenaga Pintar Fasa Tunggal Berasaskan IoT Menggunakan ESP32"
+  >
+
+  <!-- FONT -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
     rel="stylesheet"
   >
 
-  <link rel="stylesheet" href="styles.css">
-
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <!-- ================= HOME ================= -->
+  <!-- BACKGROUND EFFECT -->
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
 
-  <div class="site-page" id="sitePage">
 
+  <!-- =====================================================
+       LANDING PAGE
+       ===================================================== -->
+
+  <main id="sitePage" class="site-page">
+
+    <!-- HEADER -->
     <header class="site-header">
 
-      <a class="brand-mark" href="#home">
-        <span>ϟ</span>
-        <b>EcoEnergy Monitor</b>
+      <a class="brand" href="#home">
+        <span class="brand-icon">⚡</span>
+
+        <span>
+          EcoEnergy <b>Monitor</b>
+        </span>
       </a>
 
       <nav class="site-nav">
-        <a href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#services">Services</a>
-        <a href="#contact">Contact</a>
+        <a href="#home">Utama</a>
+        <a href="#about">Projek</a>
+        <a href="#features">Ciri</a>
+        <a href="#contact">Hubungi</a>
       </nav>
 
-      <button class="nav-login" id="openLogin">
-        Log In <span>→</span>
+      <button
+        id="openLogin"
+        class="ghost-btn"
+      >
+        Dashboard
+        <span>↗</span>
       </button>
 
     </header>
 
 
-    <main>
+    <!-- =====================================================
+         HERO
+         ===================================================== -->
 
-      <!-- ================= HERO ================= -->
+    <section
+      id="home"
+      class="hero"
+    >
 
-      <section class="hero-section" id="home">
+      <div class="hero-copy">
 
-        <div class="hero-copy">
+        <!-- ONLINE STATUS -->
+        <div class="status-pill">
 
-          <div class="iot-badge">
-            <span class="dot"></span>
-            SISTEM PEMANTAUAN BEBAN ELEKTRIK FASA TUNGGAL
-          </div>
+          <span class="pulse"></span>
 
-          <p class="eyebrow">
-            SMART ENERGY • SMART LIVING
-          </p>
-
-          <h1>
-            EcoEnergy <span>Monitor</span>
-          </h1>
-
-          <p>
-            Pengurusan bajet tenaga pintar berasaskan ESP32 dan sensor
-            PZEM-004T secara real-time.
-          </p>
-
-          <div class="hero-actions">
-
-            <button class="primary-btn" id="heroLogin">
-              TEROKAI CIRI IoT <span>→</span>
-            </button>
-
-            <a href="#services" class="learn-link">
-              Lihat modul <span>↓</span>
-            </a>
-
-          </div>
-
-        </div>
-
-
-        <div class="hero-visual">
-
-          <div class="visual-orbit"></div>
-
-          <div class="visual-bolt">
-            ϟ
-          </div>
-
-
-          <div class="sensor-panel">
-
-            <div class="sensor-header">
-
-              <span>
-                <i class="live-dot"></i>
-                LIVE IoT DATA FEED
-              </span>
-
-              <small id="heroConnectionStatus">
-                ESP32: MENYAMBUNG...
-              </small>
-
-            </div>
-
-
-            <div class="sensor-grid">
-
-              <div>
-                <small>VOLTAN (V)</small>
-                <strong id="val-voltage">0.00 V</strong>
-              </div>
-
-              <div>
-                <small>ARUS (A)</small>
-                <strong id="val-current">0.00 A</strong>
-              </div>
-
-              <div>
-                <small>KUASA (W)</small>
-                <strong id="val-power">0.00 W</strong>
-              </div>
-
-              <div>
-                <small>BAJET BULANAN</small>
-                <strong id="heroBudget">
-                  RM 0.00
-                </strong>
-              </div>
-
-            </div>
-
-
-            <div class="sensor-footer">
-
-              <span>
-                ▣ Hardware: PZEM-004T v3.0
-              </span>
-
-              <span>
-                ⌁ Protocol: Firebase / WiFi
-              </span>
-
-            </div>
-
-          </div>
-
-
-          <div class="visual-label">
-            POWERING<br>
-            <b>WHAT MATTERS</b>
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- ================= ABOUT ================= -->
-
-      <section class="about-section content-section" id="about">
-
-        <div class="section-kicker">
-
-          <p class="eyebrow">
-            TENTANG KAMI
-          </p>
-
-          <span>
-            01 / 04
+          <span id="heroConnectionStatus">
+            Menyemak status ESP32...
           </span>
 
         </div>
 
 
-        <div class="about-grid">
+        <p class="eyebrow">
+          FINAL YEAR PROJECT • IoT ENERGY MANAGEMENT
+        </p>
 
-          <h2>
-            Tenaga yang jelas.<br>
-            <span>Keputusan yang lebih baik.</span>
-          </h2>
+
+        <h1>
+          Tenaga lebih
+          <span>pintar.</span>
+
+          <br>
+
+          Bajet lebih
+          <span>terkawal.</span>
+        </h1>
+
+
+        <p class="lead">
+
+          Sistem Pengoptimum Bajet dan Tenaga Pintar
+          Fasa Tunggal Berasaskan IoT Menggunakan ESP32.
+
+          Sistem ini membolehkan pemantauan tenaga,
+          anggaran kos dan kawalan beban elektrik
+          melalui satu platform pintar.
+
+        </p>
+
+
+        <div class="hero-actions">
+
+          <button
+            id="heroLogin"
+            class="primary-btn"
+          >
+            Buka Dashboard
+            <span>→</span>
+          </button>
+
+
+          <a
+            href="#about"
+            class="text-link"
+          >
+            Kenali projek ↓
+          </a>
+
+        </div>
+
+
+        <!-- LIVE READING -->
+        <div class="hero-mini-stats">
 
           <div>
 
-            <p>
-              EcoEnergy Monitor membantu anda melihat penggunaan
-              elektrik secara real-time serta mengurus bajet tenaga
-              dengan lebih mudah.
-            </p>
+            <strong id="val-voltage">
+              0.00 V
+            </strong>
 
-            <a class="arrow-link" href="#services">
-              Lihat apa yang kami tawarkan <span>↗</span>
-            </a>
+            <small>
+              VOLTAN
+            </small>
+
+          </div>
+
+
+          <div>
+
+            <strong id="val-current">
+              0.00 A
+            </strong>
+
+            <small>
+              ARUS
+            </small>
+
+          </div>
+
+
+          <div>
+
+            <strong id="val-power">
+              0.00 W
+            </strong>
+
+            <small>
+              KUASA
+            </small>
 
           </div>
 
         </div>
 
-      </section>
+      </div>
 
 
-      <!-- ================= SERVICES ================= -->
+      <!-- =====================================================
+           LIVE ENERGY CONSOLE
+           ===================================================== -->
 
-      <section class="services-section content-section" id="services">
+      <div class="hero-console">
 
-        <div class="section-kicker">
-
-          <p class="eyebrow">
-            PERKHIDMATAN
-          </p>
+        <div class="console-top">
 
           <span>
-            02 / 04
+            LIVE ENERGY NODE
+          </span>
+
+          <span class="code">
+            ESP32-01
           </span>
 
         </div>
 
 
-        <h2>
-          Alat kecil untuk<br>
-          <span>perubahan besar.</span>
-        </h2>
+        <!-- POWER RING -->
+        <div class="energy-ring">
 
+          <div>
 
-        <div class="service-grid">
+            <small>
+              REAL-TIME POWER
+            </small>
 
-          <article>
+            <strong id="heroPower">
+              0.00
+            </strong>
 
-            <b>01</b>
+            <span>
+              WATT
+            </span>
 
-            <h3>
-              Pantauan masa nyata
-            </h3>
-
-            <p>
-              Lihat penggunaan voltan, arus dan kuasa
-              daripada sensor PZEM-004T.
-            </p>
-
-          </article>
-
-
-          <article>
-
-            <b>02</b>
-
-            <h3>
-              Kawalan bajet
-            </h3>
-
-            <p>
-              Tetapkan sasaran penggunaan dan pantau
-              penggunaan tenaga.
-            </p>
-
-          </article>
-
-
-          <article>
-
-            <b>03</b>
-
-            <h3>
-              Kawalan relay
-            </h3>
-
-            <p>
-              Kawal relay ON atau OFF terus melalui
-              dashboard web.
-            </p>
-
-          </article>
+          </div>
 
         </div>
 
-      </section>
+
+        <!-- SYSTEM INFO -->
+        <div class="console-grid">
+
+          <div>
+
+            <small>
+              ENERGY
+            </small>
+
+            <strong id="heroEnergy">
+              0.00 kWh
+            </strong>
+
+          </div>
 
 
-      <!-- ================= CONTACT ================= -->
+          <div>
 
-      <section class="contact-section content-section" id="contact">
+            <small>
+              RELAY
+            </small>
+
+            <strong id="heroRelay">
+              OFF
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <small>
+              SYSTEM
+            </small>
+
+            <strong id="system-status-text">
+              NORMAL
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <small>
+              CLOUD
+            </small>
+
+            <strong>
+              FIREBASE
+            </strong>
+
+          </div>
+
+        </div>
+
+        <div class="scan-line"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ABOUT PROJECT
+         ===================================================== -->
+
+    <section
+      id="about"
+      class="section"
+    >
+
+      <div class="section-tag">
+        01 / TENTANG PROJEK
+      </div>
+
+
+      <div class="about-grid">
 
         <div>
 
           <p class="eyebrow">
-            HUBUNGI KAMI
+            ECOENERGY MONITOR
           </p>
 
           <h2>
-            Ada soalan?<br>
-            <span>Jom berbual.</span>
+
+            Satu sistem untuk
+
+            <span>
+              pantau, kawal dan optimumkan
+            </span>
+
+            penggunaan elektrik.
+
           </h2>
 
         </div>
 
 
-        <div class="contact-detail">
+        <div class="about-copy">
 
           <p>
-            Kami sedia membantu anda memahami tenaga
-            di rumah dengan lebih baik.
+
+            Projek ini dibangunkan untuk memantau
+            penggunaan tenaga elektrik fasa tunggal
+            menggunakan ESP32 dan sensor PZEM-004T.
+
+            Data penggunaan elektrik dihantar melalui
+            sambungan Wi-Fi ke Firebase Realtime Database
+            sebelum dipaparkan pada dashboard web.
+
           </p>
 
-          <a
-            href="mailto:hello@ecoenergy.local"
-            class="arrow-link"
-          >
-            hello@ecoenergy.local <span>↗</span>
-          </a>
 
-          <p class="contact-meta">
-            Isnin–Jumaat, 9.00 pagi–5.00 petang
+          <p>
+
+            Pengguna boleh melihat voltan, arus,
+            kuasa, tenaga, anggaran kos,
+            status peranti serta mengawal relay
+            ON dan OFF dari jauh.
+
           </p>
+
+
+          <div class="tech-row">
+
+            <span>ESP32</span>
+            <span>PZEM-004T</span>
+            <span>CT CLAMP</span>
+            <span>FIREBASE</span>
+            <span>RELAY</span>
+
+          </div>
 
         </div>
 
-      </section>
+      </div>
 
-    </main>
+    </section>
 
 
-    <footer class="site-footer">
+    <!-- =====================================================
+         FEATURES
+         ===================================================== -->
+
+    <section
+      id="features"
+      class="section features-section"
+    >
+
+      <div class="section-tag">
+        02 / CIRI UTAMA
+      </div>
+
+
+      <div class="section-head">
+
+        <div>
+
+          <p class="eyebrow">
+            SMART ENERGY PLATFORM
+          </p>
+
+          <h2>
+
+            Dibina untuk
+
+            <span>
+              pemantauan sebenar.
+            </span>
+
+          </h2>
+
+        </div>
+
+
+        <p>
+
+          Data sensor dihantar daripada PZEM ke ESP32,
+          kemudian ke Firebase dan dipaparkan pada
+          dashboard.
+
+          Arahan kawalan daripada dashboard pula
+          dihantar semula kepada ESP32 untuk
+          mengawal relay.
+
+        </p>
+
+      </div>
+
+
+      <div class="feature-grid">
+
+
+        <!-- FEATURE 1 -->
+        <article>
+
+          <span class="feature-no">
+            01
+          </span>
+
+          <div class="feature-icon">
+            ⌁
+          </div>
+
+          <h3>
+            Real-Time Monitoring
+          </h3>
+
+          <p>
+
+            Memantau voltan, arus, kuasa dan
+            tenaga daripada PZEM-004T
+            secara langsung.
+
+          </p>
+
+        </article>
+
+
+        <!-- FEATURE 2 -->
+        <article>
+
+          <span class="feature-no">
+            02
+          </span>
+
+          <div class="feature-icon">
+            RM
+          </div>
+
+          <h3>
+            Budget Optimizer
+          </h3>
+
+          <p>
+
+            Menunjukkan penggunaan tenaga dan
+            anggaran kos untuk membantu pengguna
+            mengurus bajet elektrik.
+
+          </p>
+
+        </article>
+
+
+        <!-- FEATURE 3 -->
+        <article>
+
+          <span class="feature-no">
+            03
+          </span>
+
+          <div class="feature-icon">
+            ◉
+          </div>
+
+          <h3>
+            Smart Relay Control
+          </h3>
+
+          <p>
+
+            Mengawal beban elektrik ON dan OFF
+            melalui dashboard dengan arahan
+            diselaraskan menggunakan Firebase.
+
+          </p>
+
+        </article>
+
+
+        <!-- FEATURE 4 -->
+        <article>
+
+          <span class="feature-no">
+            04
+          </span>
+
+          <div class="feature-icon">
+            ☁
+          </div>
+
+          <h3>
+            Cloud Connected
+          </h3>
+
+          <p>
+
+            Status ONLINE atau OFFLINE
+            ESP32 dipantau menggunakan
+            heartbeat yang dihantar ke Firebase.
+
+          </p>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SYSTEM FLOW
+         ===================================================== -->
+
+    <section class="architecture-section section">
+
+      <div class="section-tag">
+        03 / SYSTEM FLOW
+      </div>
+
+
+      <div class="flow">
+
+        <div class="flow-node">
+
+          <b>
+            PZEM + CT
+          </b>
+
+          <small>
+            Energy sensing
+          </small>
+
+        </div>
+
+
+        <i>→</i>
+
+
+        <div class="flow-node active">
+
+          <b>
+            ESP32
+          </b>
+
+          <small>
+            Processing + Wi-Fi
+          </small>
+
+        </div>
+
+
+        <i>→</i>
+
+
+        <div class="flow-node">
+
+          <b>
+            Firebase
+          </b>
+
+          <small>
+            Realtime cloud
+          </small>
+
+        </div>
+
+
+        <i>→</i>
+
+
+        <div class="flow-node">
+
+          <b>
+            Dashboard
+          </b>
+
+          <small>
+            Monitor + control
+          </small>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CONTACT
+         ===================================================== -->
+
+    <section
+      id="contact"
+      class="section contact-section"
+    >
+
+      <div>
+
+        <p class="eyebrow">
+          PROJECT CONTACT
+        </p>
+
+
+        <h2>
+
+          Ada pertanyaan tentang
+
+          <span>
+            EcoEnergy Monitor?
+          </span>
+
+        </h2>
+
+
+        <p>
+
+          Hubungi pembangun projek untuk
+          mendapatkan maklumat lanjut berkaitan
+          sistem, demonstrasi atau dokumentasi projek.
+
+        </p>
+
+      </div>
+
+
+      <div class="contact-card">
+
+        <div class="avatar">
+          Z
+        </div>
+
+
+        <div>
+
+          <small>
+            PROJECT DEVELOPER
+          </small>
+
+          <h3>
+            Zati
+          </h3>
+
+        </div>
+
+
+        <a href="tel:01174359781">
+
+          <small>
+            TELEFON
+          </small>
+
+          <strong>
+            011-7435 9781
+          </strong>
+
+        </a>
+
+
+        <a href="mailto:izzatitarmizi2808@gmail.com">
+
+          <small>
+            EMAIL
+          </small>
+
+          <strong>
+            izzatitarmizi2808@gmail.com
+          </strong>
+
+        </a>
+
+      </div>
+
+    </section>
+
+
+    <!-- FOOTER -->
+    <footer>
 
       <span>
-        © 2026 EcoEnergy Monitor
+        © 2026 ECOENERGY MONITOR
       </span>
 
       <span>
-        ENERGY MADE SIMPLE
+        ESP32 • PZEM-004T • FIREBASE • IoT
       </span>
 
     </footer>
 
-  </div>
-
-
-
-  <!-- ================= LOGIN ================= -->
-
-  <main class="auth-shell hidden" id="authShell">
-
-    <section class="energy-panel">
-
-      <div class="grid-lines"></div>
-
-      <div class="sun-ring"></div>
-
-      <div class="bolt">
-        ϟ
-      </div>
-
-
-      <div class="energy-content">
-
-        <div class="iot-badge">
-          <span class="dot"></span>
-          ESP32 SENSOR ONLINE
-        </div>
-
-        <p class="eyebrow">
-          ECOENERGY MONITOR • SMART ENERGY
-        </p>
-
-        <h1>
-          Tenaga anda,<br>
-          <span>dalam kawalan.</span>
-        </h1>
-
-        <p class="intro">
-          Pantau penggunaan elektrik, kawal bajet dan
-          fahami bil anda dalam satu ruang yang mudah.
-        </p>
-
-
-        <div class="stats-container">
-
-          <div class="stat-card">
-            <strong class="stat-value">24/7</strong>
-            <small class="stat-label">PEMANTAUAN</small>
-          </div>
-
-          <div class="stat-card">
-            <strong class="stat-value">RM</strong>
-            <small class="stat-label">BAJET</small>
-          </div>
-
-          <div class="stat-card">
-            <strong class="stat-value">kWh</strong>
-            <small class="stat-label">TENAGA</small>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <section class="form-panel">
-
-      <button class="back-home" id="backHome">
-        ← Kembali ke home
-      </button>
-
-
-      <div class="form-wrap">
-
-        <div class="brand-mark">
-          <span>ϟ</span>
-          <b>EcoEnergy Monitor</b>
-        </div>
-
-
-        <div class="form-heading">
-
-          <p class="eyebrow">
-            SELAMAT DATANG
-          </p>
-
-          <h2 id="formTitle">
-            Selamat Datang Kembali
-          </h2>
-
-          <p id="formSubtitle">
-            Log masuk untuk lihat tenaga anda.
-          </p>
-
-        </div>
-
-
-        <!-- LOGIN -->
-
-        <form id="loginForm" class="auth-form">
-
-          <label for="loginUser">
-            Username
-          </label>
-
-          <input
-            id="loginUser"
-            type="text"
-            placeholder="Contoh: user123"
-            required
-          >
-
-
-          <label for="loginPass">
-            Password
-          </label>
-
-          <input
-            id="loginPass"
-            type="password"
-            placeholder="Masukkan password anda"
-            required
-          >
-
-
-          <div class="form-row">
-
-            <label class="check">
-              <input type="checkbox">
-              Ingat saya
-            </label>
-
-            <a href="#" id="forgotLink">
-              Lupa password?
-            </a>
-
-          </div>
-
-
-          <button class="primary-btn" type="submit">
-            LOG MASUK <span>→</span>
-          </button>
-
-
-          <p class="switch-copy">
-            Belum ada akaun?
-
-            <button
-              type="button"
-              class="text-btn"
-              id="showRegister"
-            >
-              Daftar akaun baru
-            </button>
-
-          </p>
-
-
-          <p class="demo-hint">
-            Demo: user123 / password123
-          </p>
-
-        </form>
-
-
-        <!-- REGISTER -->
-
-        <form
-          id="registerForm"
-          class="auth-form hidden"
-          novalidate
-        >
-
-          <label for="regUser">
-            Username
-          </label>
-
-          <input
-            id="regUser"
-            type="text"
-            placeholder="Pilih username"
-            required
-          >
-
-
-          <label for="regPass">
-            Password
-          </label>
-
-          <input
-            id="regPass"
-            type="password"
-            placeholder="Minimum 6 aksara"
-            required
-            minlength="6"
-          >
-
-
-          <label for="regConfirm">
-            Sahkan password
-          </label>
-
-          <input
-            id="regConfirm"
-            type="password"
-            placeholder="Taip semula password"
-            required
-          >
-
-
-          <button
-            class="primary-btn green"
-            type="submit"
-          >
-            DAFTAR SEKARANG <span>→</span>
-          </button>
-
-
-          <p class="switch-copy">
-
-            Sudah ada akaun?
-
-            <button
-              type="button"
-              class="text-btn"
-              id="showLogin"
-            >
-              Log masuk
-            </button>
-
-          </p>
-
-        </form>
-
-
-        <p
-          class="message"
-          id="message"
-          role="status"
-        ></p>
-
-
-        <p class="secure-note">
-          ♢ Akses anda dilindungi dan dipantau dengan selamat.
-        </p>
-
-      </div>
-
-    </section>
-
   </main>
 
 
-
-  <!-- ================= DASHBOARD ================= -->
+  <!-- =====================================================
+       LOGIN PAGE
+       ===================================================== -->
 
   <section
-    class="dashboard hidden"
-    id="dashboard"
+    id="authShell"
+    class="auth-shell hidden"
   >
 
-    <header class="dashboard-head">
-
-      <div class="brand-mark">
-        <span>ϟ</span>
-        <b>EcoEnergy Monitor</b>
-      </div>
-
-      <button
-        class="logout-btn"
-        id="logout"
-      >
-        Log keluar
-      </button>
-
-    </header>
+    <button
+      id="backHome"
+      class="back-btn"
+    >
+      ← Kembali
+    </button>
 
 
-    <div class="dashboard-content">
+    <div class="auth-showcase">
+
+      <div class="auth-orbit"></div>
+
 
       <p class="eyebrow">
-        DASHBOARD TENAGA
+        SECURE ENERGY ACCESS
       </p>
 
 
       <h2>
-        Selamat datang,
-        <span id="userName">
-          user123
-        </span>.
+
+        Control your energy.
+
+        <br>
+
+        <span>
+          Control your budget.
+        </span>
+
       </h2>
 
 
-      <p class="muted">
-        Ringkasan penggunaan elektrik rumah anda.
+      <p>
+
+        Akses dashboard pemantauan tenaga
+        dan kawalan beban EcoEnergy Monitor.
+
       </p>
 
 
-      <!-- ================= METRIC ================= -->
+      <div class="auth-stats">
+
+        <div>
+          <b>4</b>
+          <span>Parameter</span>
+        </div>
+
+        <div>
+          <b>24/7</b>
+          <span>Cloud</span>
+        </div>
+
+        <div>
+          <b>IoT</b>
+          <span>Control</span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="auth-panel">
+
+      <form
+        id="loginForm"
+        class="login-card"
+      >
+
+        <div class="brand auth-brand">
+
+          <span class="brand-icon">
+            ⚡
+          </span>
+
+          <span>
+            EcoEnergy <b>Monitor</b>
+          </span>
+
+        </div>
+
+
+        <p class="eyebrow">
+          WELCOME BACK
+        </p>
+
+
+        <h2 id="formTitle">
+          Log Masuk Dashboard
+        </h2>
+
+
+        <p
+          id="formSubtitle"
+          class="muted"
+        >
+          Masukkan akaun untuk mengakses sistem.
+        </p>
+
+
+        <label>
+          Username
+        </label>
+
+        <input
+          id="loginUser"
+          type="text"
+          autocomplete="username"
+          placeholder="Masukkan username"
+          required
+        >
+
+
+        <label>
+          Password
+        </label>
+
+
+        <div class="password-wrap">
+
+          <input
+            id="loginPass"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Masukkan password"
+            required
+          >
+
+          <button
+            type="button"
+            id="togglePass"
+          >
+            Lihat
+          </button>
+
+        </div>
+
+
+        <button
+          class="primary-btn full"
+          type="submit"
+        >
+
+          LOG MASUK
+
+          <span>
+            →
+          </span>
+
+        </button>
+
+
+        <p
+          id="message"
+          class="message"
+        ></p>
+
+
+        <p class="security-note">
+
+          ⚠ Demo FYP:
+          login ini berjalan pada bahagian frontend.
+
+        </p>
+
+      </form>
+
+
+      <form
+        id="registerForm"
+        class="login-card hidden"
+      ></form>
+
+      <button
+        id="showRegister"
+        class="hidden"
+        type="button"
+      ></button>
+
+      <button
+        id="showLogin"
+        class="hidden"
+        type="button"
+      ></button>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       DASHBOARD
+       ===================================================== -->
+
+  <section
+    id="dashboard"
+    class="dashboard hidden"
+  >
+
+    <!-- DASHBOARD HEADER -->
+    <header class="dash-header">
+
+      <div class="brand">
+
+        <span class="brand-icon">
+          ⚡
+        </span>
+
+        <span>
+          EcoEnergy <b>Monitor</b>
+        </span>
+
+      </div>
+
+
+      <div class="dash-head-right">
+
+        <span
+          id="dashboardConnectionStatus"
+          class="status-pill small"
+        >
+
+          <span class="pulse"></span>
+
+          Checking...
+
+        </span>
+
+
+        <button
+          id="logout"
+          class="ghost-btn"
+        >
+          Log Keluar
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- DASHBOARD CONTENT -->
+    <div class="dash-wrap">
+
+
+      <div class="dash-intro">
+
+        <div>
+
+          <p class="eyebrow">
+            SMART ENERGY COMMAND CENTER
+          </p>
+
+
+          <h1>
+
+            Selamat datang,
+
+            <span id="userName">
+              Zati
+            </span>.
+
+          </h1>
+
+
+          <p>
+
+            Pantau penggunaan, bajet dan
+            kawalan beban dari satu dashboard.
+
+          </p>
+
+        </div>
+
+
+        <div class="date-chip">
+
+          <small>
+            DEVICE
+          </small>
+
+          <strong>
+            ESP32-01
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           SENSOR METRICS
+           ================================================= -->
 
       <div class="metric-grid">
 
-        <article>
+
+        <article class="metric cyan">
 
           <small>
-            BIL SEMASA
+            VOLTAGE
           </small>
 
-          <strong id="dashboardBill">
-            RM 0.00
+          <strong id="dashboardVoltage">
+            0.00 V
           </strong>
 
-          <span
-            class="good"
-            id="previousUsage"
-          >
-            Bulan lepas: 0.00 kWh
+          <span>
+            Bekalan fasa tunggal
           </span>
 
         </article>
 
 
-        <article>
+        <article class="metric green">
 
           <small>
-            PENGGUNAAN BULAN INI
+            CURRENT
+          </small>
+
+          <strong id="dashboardCurrent">
+            0.00 A
+          </strong>
+
+          <span>
+            Bacaan CT / PZEM
+          </span>
+
+        </article>
+
+
+        <article class="metric amber">
+
+          <small>
+            POWER
+          </small>
+
+          <strong id="dashboardPower">
+            0.00 W
+          </strong>
+
+          <span>
+            Kuasa semasa
+          </span>
+
+        </article>
+
+
+        <article class="metric violet">
+
+          <small>
+            ENERGY
           </small>
 
           <strong>
@@ -673,34 +1079,12 @@
               0.00
             </span>
 
-            <em>
-              kWh
-            </em>
+            kWh
 
           </strong>
 
           <span>
-            Daripada 300 kWh sasaran
-          </span>
-
-        </article>
-
-
-        <article>
-
-          <small>
-            STATUS SISTEM
-          </small>
-
-          <strong
-            class="status"
-            id="dashboardStatus"
-          >
-            NORMAL
-          </strong>
-
-          <span id="dashboardConnectionStatus">
-            ESP32 sedang menyambung...
+            Jumlah penggunaan
           </span>
 
         </article>
@@ -708,235 +1092,182 @@
       </div>
 
 
+      <!-- =================================================
+           BUDGET + RELAY
+           ================================================= -->
 
-      <!-- ================= LIVE SENSOR ================= -->
-
-      <div class="relay-card">
-
-        <div>
-
-          <small>
-            LIVE SENSOR PZEM-004T
-          </small>
-
-          <h3>
-            Bacaan elektrik
-          </h3>
-
-          <p>
-            Voltan:
-            <b id="dashboardVoltage">
-              0.00 V
-            </b>
-          </p>
-
-          <p>
-            Arus:
-            <b id="dashboardCurrent">
-              0.00 A
-            </b>
-          </p>
-
-          <p>
-            Kuasa:
-            <b id="dashboardPower">
-              0.00 W
-            </b>
-          </p>
-
-        </div>
-
-      </div>
+      <div class="dash-grid">
 
 
+        <!-- BUDGET -->
+        <section class="panel budget-panel">
 
-      <!-- ================= RELAY ================= -->
+          <div class="panel-head">
 
-      <div class="relay-card">
+            <div>
 
-        <div>
+              <p class="eyebrow">
+                BUDGET INTELLIGENCE
+              </p>
 
-          <small>
-            KAWALAN PERANTI
-          </small>
+              <h3>
+                Pengoptimum Bajet
+              </h3>
 
-          <h3>
-            Relay utama
-          </h3>
-
-          <p id="relayStatusText">
-            Relay sedang dimatikan.
-          </p>
-
-        </div>
+            </div>
 
 
-        <div class="relay-actions">
-
-          <button
-            class="relay-btn relay-on"
-            id="relayOn"
-            type="button"
-          >
-            ON
-          </button>
-
-
-          <button
-            class="relay-btn relay-off"
-            id="relayOff"
-            type="button"
-          >
-            OFF
-          </button>
-
-        </div>
-
-      </div>
-
-
-
-      <!-- ================= BUDGET ================= -->
-
-      <div class="budget-card">
-
-        <div class="budget-heading">
-
-          <div>
-
-            <small>
-              PROGRESS BAJET
-            </small>
-
-            <h3>
-              Penggunaan berbanding sasaran
-            </h3>
-
-            <p id="budget-progress-text">
-              0 kWh daripada 300 kWh sasaran (0.0%)
-            </p>
+            <span
+              id="dashboardStatus"
+              class="tag good"
+            >
+              NORMAL
+            </span>
 
           </div>
 
 
-          <strong id="system-status-text">
-            NORMAL
-          </strong>
+          <div class="budget-number">
 
-        </div>
+            <small>
+              ANGGARAN BIL
+            </small>
+
+            <strong id="dashboardBill">
+              RM 0.00
+            </strong>
+
+          </div>
 
 
-        <div class="progress-track">
+          <div class="progress-track">
+
+            <div id="budget-progress-bar"></div>
+
+          </div>
+
+
+          <p id="budget-progress-text">
+
+            0.00 kWh daripada
+            300 kWh sasaran
+
+          </p>
+
 
           <div
-            id="budget-progress-bar"
-            style="width:0%"
-          ></div>
+            id="smart-recommendation-box"
+            class="recommendation"
+          >
 
-        </div>
-
-
-        <div
-          id="smart-recommendation-box"
-          class="recommendation-box"
-        ></div>
-
-      </div>
-
-
-
-      <!-- ================= 7 DAYS ================= -->
-
-      <div class="usage-card">
-
-        <div>
-
-          <small>
-            PENGGUNAAN 7 HARI TERAKHIR
-          </small>
-
-          <h3>
-            Tenaga harian
-          </h3>
-
-        </div>
-
-
-        <div
-          class="bars"
-          aria-label="Carta penggunaan tenaga"
-        >
-
-          <i style="height:42%"></i>
-          <i style="height:62%"></i>
-          <i style="height:52%"></i>
-          <i style="height:78%"></i>
-          <i style="height:66%"></i>
-          <i style="height:90%"></i>
-          <i style="height:58%"></i>
-
-        </div>
-
-
-        <div class="days">
-
-          <span>ISN</span>
-          <span>SEL</span>
-          <span>RAB</span>
-          <span>KHA</span>
-          <span>JUM</span>
-          <span>SAB</span>
-          <span>AHAD</span>
-
-        </div>
-
-      </div>
-
-
-
-      <!-- ================= CALCULATOR ================= -->
-
-      <div class="calculator-card">
-
-        <div class="calculator-intro">
-
-          <div>
-
-            <small>
-              KALKULATOR PENGGUNAAN
-            </small>
-
-            <h3>
-              Kira anggaran bil anda
-            </h3>
-
-            <p class="muted">
-              Masukkan jumlah penggunaan sensor
-              dan tempoh bil untuk mendapatkan
-              anggaran bil.
-            </p>
+            Penggunaan tenaga masih
+            dalam sasaran.
 
           </div>
 
-          <span class="calculator-icon">
-            ϟ
+        </section>
+
+
+        <!-- RELAY -->
+        <section class="panel relay-panel">
+
+          <div class="panel-head">
+
+            <div>
+
+              <p class="eyebrow">
+                REMOTE CONTROL
+              </p>
+
+              <h3>
+                Kawalan Relay
+              </h3>
+
+            </div>
+
+
+            <span class="relay-led"></span>
+
+          </div>
+
+
+          <div class="relay-visual">
+
+            <span>
+              LOAD
+            </span>
+
+            <strong id="relayStatusText">
+              Relay sedang OFF.
+            </strong>
+
+          </div>
+
+
+          <div class="relay-actions">
+
+            <button
+              id="relayOn"
+              class="relay-btn on"
+            >
+              ON
+            </button>
+
+
+            <button
+              id="relayOff"
+              class="relay-btn off active"
+            >
+              OFF
+            </button>
+
+          </div>
+
+        </section>
+
+      </div>
+
+
+      <!-- =================================================
+           BILL CALCULATOR
+           ================================================= -->
+
+      <section class="panel calculator-card">
+
+        <div class="panel-head">
+
+          <div>
+
+            <p class="eyebrow">
+              ENERGY CALCULATOR
+            </p>
+
+            <h3>
+              Kalkulator Anggaran Kos
+            </h3>
+
+          </div>
+
+
+          <span class="calc-icon">
+            RM
           </span>
 
         </div>
 
 
-        <div class="calculator-form">
+        <div class="calc-form">
+
 
           <div>
 
-            <label for="totalKwh">
-              Jumlah penggunaan (kWh)
+            <label>
+              Jumlah Tenaga (kWh)
             </label>
 
             <input
               id="totalKwh"
               type="number"
-              min="0"
               step="0.01"
               value="0"
             >
@@ -946,15 +1277,13 @@
 
           <div>
 
-            <label for="billingDays">
-              Tempoh bil (hari)
+            <label>
+              Tempoh Bil (hari)
             </label>
 
             <input
               id="billingDays"
               type="number"
-              min="1"
-              max="365"
               value="30"
             >
 
@@ -962,25 +1291,22 @@
 
 
           <button
-            class="primary-btn"
             id="calculateUsage"
-            type="button"
+            class="primary-btn"
           >
-            KIRA BIL <span>→</span>
+            KIRA KOS
           </button>
 
         </div>
 
 
-        <div
-          class="calculation-result"
-          id="calculationResult"
-        >
+        <div class="calc-results">
+
 
           <div>
 
             <small>
-              JUMLAH PENGGUNAAN
+              PENGGUNAAN
             </small>
 
             <strong id="monthlyUsage">
@@ -990,10 +1316,10 @@
           </div>
 
 
-          <div class="result-highlight">
+          <div class="highlight">
 
             <small>
-              JUMLAH ANGGARAN
+              ANGGARAN JUMLAH
             </small>
 
             <strong id="monthlyCost">
@@ -1006,7 +1332,7 @@
           <div>
 
             <small>
-              CAJ KWTBB 1.6%
+              KWTBB
             </small>
 
             <strong id="kwtbbCost">
@@ -1019,34 +1345,52 @@
 
 
         <div
-          class="tariff-breakdown"
           id="tariffBreakdown"
+          class="tariff-breakdown"
         ></div>
 
 
         <p class="tariff-note">
-          Kadar anggaran tarif domestik.
+
+          * Anggaran berdasarkan formula kadar
+          yang digunakan dalam prototaip projek.
+
         </p>
 
-      </div>
+      </section>
 
     </div>
 
   </section>
 
 
-
-  <!-- ================= ESP32 + FIREBASE CONFIG ================= -->
+  <!-- =====================================================
+       ECOENERGY CONFIG
+       ===================================================== -->
 
   <script>
 
     window.ECOENERGY_CONFIG = {
 
-      
+      /*
+       * Jangan gunakan IP ESP32 pada website HTTPS Netlify.
+       * Data website akan dibaca melalui Firebase.
+       */
+
       esp32BaseUrl: '',
+
+
+      /*
+       * FIREBASE REALTIME DATABASE
+       */
 
       firebaseDatabaseUrl:
         'https://ecoenergy-monitor-default-rtdb.asia-southeast1.firebasedatabase.app',
+
+
+      /*
+       * DEVICE PATH
+       */
 
       firebaseDevicePath:
         'devices/esp32-01'
@@ -1056,10 +1400,8 @@
   </script>
 
 
-  <!-- ================= MAIN JAVASCRIPT ================= -->
-
+  <!-- JAVASCRIPT -->
   <script src="script.js"></script>
-
 
 </body>
 </html>
