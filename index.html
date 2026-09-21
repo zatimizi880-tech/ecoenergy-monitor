@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ms">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,7 @@
     content="Sistem Pengoptimum Bajet dan Tenaga Pintar Fasa Tunggal Berasaskan IoT Menggunakan ESP32"
   >
 
-  <!-- FONT -->
+  <!-- GOOGLE FONT -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -24,6 +25,7 @@
   <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 
 <body>
 
@@ -38,6 +40,7 @@
 
   <main id="sitePage" class="site-page">
 
+
     <!-- HEADER -->
     <header class="site-header">
 
@@ -49,12 +52,27 @@
         </span>
       </a>
 
+
       <nav class="site-nav">
-        <a href="#home">Utama</a>
-        <a href="#about">Projek</a>
-        <a href="#features">Ciri</a>
-        <a href="#contact">Hubungi</a>
+
+        <a href="#home">
+          Utama
+        </a>
+
+        <a href="#about">
+          Projek
+        </a>
+
+        <a href="#features">
+          Ciri
+        </a>
+
+        <a href="#contact">
+          Hubungi
+        </a>
+
       </nav>
+
 
       <button
         id="openLogin"
@@ -68,17 +86,17 @@
 
 
     <!-- =====================================================
-         HERO
+         HERO SECTION
          ===================================================== -->
 
-    <section
-      id="home"
-      class="hero"
-    >
+    <section id="home" class="hero">
 
+
+      <!-- LEFT -->
       <div class="hero-copy">
 
-        <!-- ONLINE STATUS -->
+
+        <!-- CONNECTION STATUS -->
         <div class="status-pill">
 
           <span class="pulse"></span>
@@ -96,6 +114,7 @@
 
 
         <h1>
+
           Tenaga lebih
           <span>pintar.</span>
 
@@ -103,6 +122,7 @@
 
           Bajet lebih
           <span>terkawal.</span>
+
         </h1>
 
 
@@ -118,14 +138,20 @@
         </p>
 
 
+        <!-- BUTTON -->
         <div class="hero-actions">
 
           <button
             id="heroLogin"
             class="primary-btn"
           >
+
             Buka Dashboard
-            <span>→</span>
+
+            <span>
+              →
+            </span>
+
           </button>
 
 
@@ -139,9 +165,11 @@
         </div>
 
 
-        <!-- LIVE READING -->
+        <!-- LIVE SENSOR -->
         <div class="hero-mini-stats">
 
+
+          <!-- VOLTAGE -->
           <div>
 
             <strong id="val-voltage">
@@ -155,6 +183,7 @@
           </div>
 
 
+          <!-- CURRENT -->
           <div>
 
             <strong id="val-current">
@@ -168,6 +197,7 @@
           </div>
 
 
+          <!-- POWER -->
           <div>
 
             <strong id="val-power">
@@ -185,11 +215,12 @@
       </div>
 
 
-      <!-- =====================================================
-           LIVE ENERGY CONSOLE
-           ===================================================== -->
+      <!-- =================================================
+           RIGHT - LIVE ENERGY CONSOLE
+           ================================================= -->
 
       <div class="hero-console">
+
 
         <div class="console-top">
 
@@ -226,9 +257,11 @@
         </div>
 
 
-        <!-- SYSTEM INFO -->
+        <!-- INFO GRID -->
         <div class="console-grid">
 
+
+          <!-- ENERGY -->
           <div>
 
             <small>
@@ -242,6 +275,7 @@
           </div>
 
 
+          <!-- RELAY -->
           <div>
 
             <small>
@@ -255,6 +289,7 @@
           </div>
 
 
+          <!-- SYSTEM -->
           <div>
 
             <small>
@@ -268,6 +303,7 @@
           </div>
 
 
+          <!-- CLOUD -->
           <div>
 
             <small>
@@ -282,6 +318,8 @@
 
         </div>
 
+
+        <!-- SCANNER EFFECT -->
         <div class="scan-line"></div>
 
       </div>
@@ -298,6 +336,7 @@
       class="section"
     >
 
+
       <div class="section-tag">
         01 / TENTANG PROJEK
       </div>
@@ -305,11 +344,14 @@
 
       <div class="about-grid">
 
+
+        <!-- LEFT -->
         <div>
 
           <p class="eyebrow">
             ECOENERGY MONITOR
           </p>
+
 
           <h2>
 
@@ -326,6 +368,7 @@
         </div>
 
 
+        <!-- RIGHT -->
         <div class="about-copy">
 
           <p>
@@ -343,21 +386,36 @@
 
           <p>
 
-            Pengguna boleh melihat voltan, arus,
-            kuasa, tenaga, anggaran kos,
+            Pengguna boleh melihat voltan,
+            arus, kuasa, tenaga, anggaran kos,
             status peranti serta mengawal relay
             ON dan OFF dari jauh.
 
           </p>
 
 
+          <!-- TECHNOLOGY -->
           <div class="tech-row">
 
-            <span>ESP32</span>
-            <span>PZEM-004T</span>
-            <span>CT CLAMP</span>
-            <span>FIREBASE</span>
-            <span>RELAY</span>
+            <span>
+              ESP32
+            </span>
+
+            <span>
+              PZEM-004T
+            </span>
+
+            <span>
+              CT CLAMP
+            </span>
+
+            <span>
+              FIREBASE
+            </span>
+
+            <span>
+              RELAY
+            </span>
 
           </div>
 
@@ -377,6 +435,7 @@
       class="section features-section"
     >
 
+
       <div class="section-tag">
         02 / CIRI UTAMA
       </div>
@@ -389,6 +448,7 @@
           <p class="eyebrow">
             SMART ENERGY PLATFORM
           </p>
+
 
           <h2>
 
@@ -418,28 +478,32 @@
       </div>
 
 
+      <!-- FEATURES GRID -->
       <div class="feature-grid">
 
 
-        <!-- FEATURE 1 -->
+        <!-- 01 -->
         <article>
 
           <span class="feature-no">
             01
           </span>
 
+
           <div class="feature-icon">
             ⌁
           </div>
+
 
           <h3>
             Real-Time Monitoring
           </h3>
 
+
           <p>
 
-            Memantau voltan, arus, kuasa dan
-            tenaga daripada PZEM-004T
+            Memantau voltan, arus, kuasa
+            dan tenaga daripada PZEM-004T
             secara langsung.
 
           </p>
@@ -447,46 +511,52 @@
         </article>
 
 
-        <!-- FEATURE 2 -->
+        <!-- 02 -->
         <article>
 
           <span class="feature-no">
             02
           </span>
 
+
           <div class="feature-icon">
             RM
           </div>
+
 
           <h3>
             Budget Optimizer
           </h3>
 
+
           <p>
 
-            Menunjukkan penggunaan tenaga dan
-            anggaran kos untuk membantu pengguna
-            mengurus bajet elektrik.
+            Menunjukkan penggunaan tenaga
+            dan anggaran kos untuk membantu
+            pengguna mengurus bajet elektrik.
 
           </p>
 
         </article>
 
 
-        <!-- FEATURE 3 -->
+        <!-- 03 -->
         <article>
 
           <span class="feature-no">
             03
           </span>
 
+
           <div class="feature-icon">
             ◉
           </div>
 
+
           <h3>
             Smart Relay Control
           </h3>
+
 
           <p>
 
@@ -499,26 +569,29 @@
         </article>
 
 
-        <!-- FEATURE 4 -->
+        <!-- 04 -->
         <article>
 
           <span class="feature-no">
             04
           </span>
 
+
           <div class="feature-icon">
             ☁
           </div>
+
 
           <h3>
             Cloud Connected
           </h3>
 
+
           <p>
 
-            Status ONLINE atau OFFLINE
-            ESP32 dipantau menggunakan
-            heartbeat yang dihantar ke Firebase.
+            Status ONLINE atau OFFLINE ESP32
+            dipantau menggunakan heartbeat
+            yang dihantar ke Firebase.
 
           </p>
 
@@ -533,7 +606,10 @@
          SYSTEM FLOW
          ===================================================== -->
 
-    <section class="architecture-section section">
+    <section
+      class="architecture-section section"
+    >
+
 
       <div class="section-tag">
         03 / SYSTEM FLOW
@@ -541,6 +617,7 @@
 
 
       <div class="flow">
+
 
         <div class="flow-node">
 
@@ -555,7 +632,9 @@
         </div>
 
 
-        <i>→</i>
+        <i>
+          →
+        </i>
 
 
         <div class="flow-node active">
@@ -571,7 +650,9 @@
         </div>
 
 
-        <i>→</i>
+        <i>
+          →
+        </i>
 
 
         <div class="flow-node">
@@ -587,7 +668,9 @@
         </div>
 
 
-        <i>→</i>
+        <i>
+          →
+        </i>
 
 
         <div class="flow-node">
@@ -616,6 +699,8 @@
       class="section contact-section"
     >
 
+
+      <!-- LEFT -->
       <div>
 
         <p class="eyebrow">
@@ -636,16 +721,18 @@
 
         <p>
 
-          Hubungi pembangun projek untuk
-          mendapatkan maklumat lanjut berkaitan
-          sistem, demonstrasi atau dokumentasi projek.
+          Hubungi pembangun projek untuk mendapatkan
+          maklumat lanjut berkaitan sistem,
+          demonstrasi atau dokumentasi projek.
 
         </p>
 
       </div>
 
 
+      <!-- CONTACT CARD -->
       <div class="contact-card">
+
 
         <div class="avatar">
           Z
@@ -665,6 +752,7 @@
         </div>
 
 
+        <!-- PHONE -->
         <a href="tel:01174359781">
 
           <small>
@@ -678,6 +766,7 @@
         </a>
 
 
+        <!-- EMAIL -->
         <a href="mailto:izzatitarmizi2808@gmail.com">
 
           <small>
@@ -695,7 +784,10 @@
     </section>
 
 
-    <!-- FOOTER -->
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
     <footer>
 
       <span>
@@ -720,6 +812,7 @@
     class="auth-shell hidden"
   >
 
+
     <button
       id="backHome"
       class="back-btn"
@@ -728,6 +821,7 @@
     </button>
 
 
+    <!-- LEFT LOGIN -->
     <div class="auth-showcase">
 
       <div class="auth-orbit"></div>
@@ -761,19 +855,43 @@
 
       <div class="auth-stats">
 
-        <div>
-          <b>4</b>
-          <span>Parameter</span>
-        </div>
 
         <div>
-          <b>24/7</b>
-          <span>Cloud</span>
+
+          <b>
+            4
+          </b>
+
+          <span>
+            Parameter
+          </span>
+
         </div>
 
+
         <div>
-          <b>IoT</b>
-          <span>Control</span>
+
+          <b>
+            24/7
+          </b>
+
+          <span>
+            Cloud
+          </span>
+
+        </div>
+
+
+        <div>
+
+          <b>
+            IoT
+          </b>
+
+          <span>
+            Control
+          </span>
+
         </div>
 
       </div>
@@ -781,12 +899,15 @@
     </div>
 
 
+    <!-- RIGHT LOGIN -->
     <div class="auth-panel">
+
 
       <form
         id="loginForm"
         class="login-card"
       >
+
 
         <div class="brand auth-brand">
 
@@ -819,9 +940,11 @@
         </p>
 
 
+        <!-- USERNAME -->
         <label>
           Username
         </label>
+
 
         <input
           id="loginUser"
@@ -832,12 +955,14 @@
         >
 
 
+        <!-- PASSWORD -->
         <label>
           Password
         </label>
 
 
         <div class="password-wrap">
+
 
           <input
             id="loginPass"
@@ -846,6 +971,7 @@
             placeholder="Masukkan password"
             required
           >
+
 
           <button
             type="button"
@@ -857,6 +983,7 @@
         </div>
 
 
+        <!-- LOGIN -->
         <button
           class="primary-btn full"
           type="submit"
@@ -871,6 +998,7 @@
         </button>
 
 
+        <!-- ERROR -->
         <p
           id="message"
           class="message"
@@ -887,16 +1015,19 @@
       </form>
 
 
+      <!-- HIDDEN ELEMENT -->
       <form
         id="registerForm"
         class="login-card hidden"
       ></form>
+
 
       <button
         id="showRegister"
         class="hidden"
         type="button"
       ></button>
+
 
       <button
         id="showLogin"
@@ -918,8 +1049,10 @@
     class="dashboard hidden"
   >
 
-    <!-- DASHBOARD HEADER -->
+
+    <!-- HEADER -->
     <header class="dash-header">
+
 
       <div class="brand">
 
@@ -936,6 +1069,8 @@
 
       <div class="dash-head-right">
 
+
+        <!-- CONNECTION -->
         <span
           id="dashboardConnectionStatus"
           class="status-pill small"
@@ -948,6 +1083,7 @@
         </span>
 
 
+        <!-- LOGOUT -->
         <button
           id="logout"
           class="ghost-btn"
@@ -960,11 +1096,16 @@
     </header>
 
 
-    <!-- DASHBOARD CONTENT -->
+    <!-- =================================================
+         DASHBOARD CONTENT
+         ================================================= -->
+
     <div class="dash-wrap">
 
 
+      <!-- WELCOME -->
       <div class="dash-intro">
+
 
         <div>
 
@@ -1010,12 +1151,13 @@
 
 
       <!-- =================================================
-           SENSOR METRICS
+           SENSOR READING
            ================================================= -->
 
       <div class="metric-grid">
 
 
+        <!-- VOLTAGE -->
         <article class="metric cyan">
 
           <small>
@@ -1033,6 +1175,7 @@
         </article>
 
 
+        <!-- CURRENT -->
         <article class="metric green">
 
           <small>
@@ -1050,6 +1193,7 @@
         </article>
 
 
+        <!-- POWER -->
         <article class="metric amber">
 
           <small>
@@ -1067,6 +1211,7 @@
         </article>
 
 
+        <!-- ENERGY -->
         <article class="metric violet">
 
           <small>
@@ -1102,7 +1247,9 @@
         <!-- BUDGET -->
         <section class="panel budget-panel">
 
+
           <div class="panel-head">
+
 
             <div>
 
@@ -1127,6 +1274,7 @@
           </div>
 
 
+          <!-- BILL -->
           <div class="budget-number">
 
             <small>
@@ -1140,9 +1288,12 @@
           </div>
 
 
+          <!-- PROGRESS -->
           <div class="progress-track">
 
-            <div id="budget-progress-bar"></div>
+            <div
+              id="budget-progress-bar"
+            ></div>
 
           </div>
 
@@ -1168,10 +1319,15 @@
         </section>
 
 
-        <!-- RELAY -->
+        <!-- =================================================
+             RELAY
+             ================================================= -->
+
         <section class="panel relay-panel">
 
+
           <div class="panel-head">
+
 
             <div>
 
@@ -1206,6 +1362,8 @@
 
           <div class="relay-actions">
 
+
+            <!-- ON -->
             <button
               id="relayOn"
               class="relay-btn on"
@@ -1214,6 +1372,7 @@
             </button>
 
 
+            <!-- OFF -->
             <button
               id="relayOff"
               class="relay-btn off active"
@@ -1234,7 +1393,9 @@
 
       <section class="panel calculator-card">
 
+
         <div class="panel-head">
+
 
           <div>
 
@@ -1256,6 +1417,7 @@
         </div>
 
 
+        <!-- FORM -->
         <div class="calc-form">
 
 
@@ -1264,6 +1426,7 @@
             <label>
               Jumlah Tenaga (kWh)
             </label>
+
 
             <input
               id="totalKwh"
@@ -1280,6 +1443,7 @@
             <label>
               Tempoh Bil (hari)
             </label>
+
 
             <input
               id="billingDays"
@@ -1300,6 +1464,7 @@
         </div>
 
 
+        <!-- RESULTS -->
         <div class="calc-results">
 
 
@@ -1344,6 +1509,7 @@
         </div>
 
 
+        <!-- TARIFF -->
         <div
           id="tariffBreakdown"
           class="tariff-breakdown"
@@ -1365,7 +1531,7 @@
 
 
   <!-- =====================================================
-       ECOENERGY CONFIG
+       FIREBASE CONFIG
        ===================================================== -->
 
   <script>
@@ -1373,8 +1539,8 @@
     window.ECOENERGY_CONFIG = {
 
       /*
-       * Jangan gunakan IP ESP32 pada website HTTPS Netlify.
-       * Data website akan dibaca melalui Firebase.
+       * ESP32 direct URL dikosongkan.
+       * Netlify HTTPS akan menggunakan Firebase.
        */
 
       esp32BaseUrl: '',
@@ -1389,7 +1555,7 @@
 
 
       /*
-       * DEVICE PATH
+       * ESP32 DEVICE
        */
 
       firebaseDevicePath:
@@ -1400,8 +1566,12 @@
   </script>
 
 
-  <!-- JAVASCRIPT -->
+  <!-- =====================================================
+       JAVASCRIPT
+       ===================================================== -->
+
   <script src="script.js"></script>
 
 </body>
+
 </html>
